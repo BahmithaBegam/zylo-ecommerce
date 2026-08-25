@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Rich Multi-Stop E-Commerce Tech Gradient: Purple -> Electric Blue -> Hot Pink -->
+    <linearGradient id="zyloPrimeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="35%" stop-color="#6366F1" />
+      <stop offset="70%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+
+    <!-- Handle Highlight Gradient -->
+    <linearGradient id="zyloHandleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="50%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+
+    <!-- Base Motion Wing Gradient -->
+    <linearGradient id="zyloBaseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="50%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#F43F5E" />
+    </linearGradient>
+
+    <!-- Spark Dot Gradient -->
+    <linearGradient id="zyloSpark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB7185" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+
+    <!-- Soft App Icon Container Background for standalone avatar use -->
+    <linearGradient id="zyloIconBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+  </defs>
+
+  <!-- STANDALONE HERO ICON GLYPH (Perfect on any bg) -->
+  <g transform="translate(40, 36)">
+    <!-- 1. TOP SHOPPING BAG HANDLE ARCH + TOP ARM OF 'Z' -->
+    <!-- Integrated Handle Arch (Shopping Element seamlessly built into Z) -->
+    <path d="M 148 116 C 148 58 190 20 248 20 C 306 20 348 58 348 116 L 348 126 C 348 136 340 144 330 144 C 320 144 312 136 312 126 L 312 116 C 312 78 284 54 248 54 C 212 54 184 78 184 116 L 184 126 C 184 136 176 144 166 144 C 156 144 148 136 148 126 Z"
+          fill="url(#zyloHandleGrad)" />
+
+    <!-- 2. MAIN GEOMETRIC Z BODY (Top Bar + Diagonal Speed Razor) -->
+    <path d="M 68 120 C 68 108 78 98 90 98 L 366 98 C 382 98 392 116 384 130 L 176 376 L 360 376 C 372 376 382 386 382 398 C 382 410 372 420 360 420 L 76 420 C 60 420 50 402 58 388 L 268 142 L 90 142 C 78 142 68 132 68 120 Z"
+          fill="url(#zyloPrimeGrad)" />
+
+    <!-- 3. FORWARD COMMERCE MOTION WING (Under-Swoosh with fast-delivery aerodynamic tip) -->
+    <path d="M 140 406 C 200 400 280 395 348 370 C 374 360 404 345 422 332 C 428 328 436 332 434 340 C 424 374 380 412 330 430 C 270 452 195 448 132 430 C 122 427 125 410 140 406 Z"
+          fill="url(#zyloBaseGrad)" />
+
+    <!-- 4. SMART SHOPPING DELIGHT SPARK (Upper Right Action Accent) -->
+    <circle cx="410" cy="94" r="14" fill="url(#zyloSpark)" />
+  </g>
+</svg>

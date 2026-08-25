@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 280" width="1000" height="280">
+  <defs>
+    <!-- Brand Gradients -->
+    <linearGradient id="logoZPrime" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="35%" stop-color="#6366F1" />
+      <stop offset="70%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+    <linearGradient id="logoZHandle" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="50%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+    <linearGradient id="logoZWing" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="50%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#F43F5E" />
+    </linearGradient>
+    <linearGradient id="logoZSpark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB7185" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+    <linearGradient id="logoLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="50%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+  </defs>
+
+  <!-- 1. ICON MARK (Left) -->
+  <g transform="translate(10, 20) scale(0.55)">
+    <!-- Bag Handle Arch -->
+    <path d="M 148 116 C 148 58 190 20 248 20 C 306 20 348 58 348 116 L 348 126 C 348 136 340 144 330 144 C 320 144 312 136 312 126 L 312 116 C 312 78 284 54 248 54 C 212 54 184 78 184 116 L 184 126 C 184 136 176 144 166 144 C 156 144 148 136 148 126 Z"
+          fill="url(#logoZHandle)" />
+
+    <!-- Main Geometric Z Body -->
+    <path d="M 68 120 C 68 108 78 98 90 98 L 366 98 C 382 98 392 116 384 130 L 176 376 L 360 376 C 372 376 382 386 382 398 C 382 410 372 420 360 420 L 76 420 C 60 420 50 402 58 388 L 268 142 L 90 142 C 78 142 68 132 68 120 Z"
+          fill="url(#logoZPrime)" />
+
+    <!-- Forward Motion Wing -->
+    <path d="M 140 406 C 200 400 280 395 348 370 C 374 360 404 345 422 332 C 428 328 436 332 434 340 C 424 374 380 412 330 430 C 270 452 195 448 132 430 C 122 427 125 410 140 406 Z"
+          fill="url(#logoZWing)" />
+
+    <!-- Delight Spark Accent -->
+    <circle cx="410" cy="94" r="14" fill="url(#logoZSpark)" />
+  </g>
+
+  <!-- 2. CUSTOM GEOMETRIC WORDMARK "ZYLO" (Dark for Light Theme) -->
+  <g transform="translate(280, 140)">
+    <!-- Letter Z -->
+    <path d="M 0 -85 L 95 -85 C 108 -85 116 -70 108 -58 L 28 50 L 100 50 C 108 50 115 57 115 65 C 115 73 108 80 100 80 L -5 80 C -18 80 -26 65 -18 53 L 62 -55 L -5 -55 C -13 -55 -20 -62 -20 -70 C -20 -78 -13 -85 0 -85 Z"
+          fill="#09090B" />
+
+    <!-- Letter Y -->
+    <path d="M 145 -85 C 153 -85 160 -78 160 -70 L 160 -65 L 205 8 L 250 -65 L 250 -70 C 250 -78 257 -85 265 -85 C 273 -85 280 -78 280 -70 L 222 18 L 222 65 C 222 73 215 80 207 80 C 199 80 192 73 192 65 L 192 18 L 130 -70 C 130 -78 137 -85 145 -85 Z"
+          fill="#09090B" />
+
+    <!-- Letter L -->
+    <path d="M 310 -70 C 310 -78 317 -85 325 -85 C 333 -85 340 -78 340 -70 L 340 50 L 395 50 C 403 50 410 57 410 65 C 410 73 403 80 395 80 L 325 80 C 317 80 310 73 310 65 L 310 -70 Z"
+          fill="#09090B" />
+
+    <!-- Letter O -->
+    <path d="M 505 -88 C 555 -88 595 -48 595 0 C 595 48 555 88 505 88 C 455 88 415 48 415 0 C 415 -48 455 -88 505 -88 Z M 505 -58 C 472 -58 445 -32 445 0 C 445 32 472 58 505 58 C 538 58 565 32 565 0 C 565 -32 538 -58 505 -58 Z"
+          fill="#09090B" />
+
+    <!-- Live Commerce Accent Dot beside O -->
+    <circle cx="625" cy="55" r="12" fill="url(#logoZSpark)" />
+  </g>
+
+  <!-- 3. BRAND TAGLINE & ACCENT BAR -->
+  <g transform="translate(280, 240)">
+    <text x="0" y="0"
+          style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.38em; fill: #64748B;">
+      SMART SHOPPING, DELIVERED
+    </text>
+    <rect x="520" y="-8" width="105" height="4" rx="2" fill="url(#logoLineGrad)" />
+  </g>
+</svg>

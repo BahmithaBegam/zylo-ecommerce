@@ -1,0 +1,6 @@
+{
+  "name": "Zylo - Smart Shopping, Delivered",
+  "description": "Hyper-realistic, modern e-commerce shopping platform with Flipkart & Meesho style UI, rich catalog density, fast delivery tracking, and full admin management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
