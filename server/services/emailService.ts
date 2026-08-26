@@ -1,7 +1,32 @@
 import nodemailer from 'nodemailer';
-import dns from 'node:dns/promises';
-import net from 'node:net';
+import dns from 'node:dns';
 import { config } from '../config/env.js';
+
+// =========================================================================
+// IPv6 DNS Interceptor for Cloud Container Environments (e.g. Render)
+// On cloud containers with no outbound IPv6 routing, Nodemailer's internal
+// resolveHostname queries both IPv4 & IPv6 and randomly picks IPv6, causing
+// connect ENETUNREACH or timeout. Returning NODATA forces Nodemailer to use
+// Google's dynamically resolved IPv4 addresses exclusively.
+// =========================================================================
+const originalResolve6 = dns.resolve6;
+if (originalResolve6) {
+  const patchedResolve6: any = function (hostname: any, ...args: any[]) {
+    if (
+      typeof hostname === 'string' &&
+      (hostname.includes('smtp') || hostname.includes('gmail') || hostname.includes('google'))
+    ) {
+      const cb = typeof args[args.length - 1] === 'function' ? args[args.length - 1] : null;
+      if (cb) {
+        const err: any = new Error(`queryAaaa ENODATA ${hostname}`);
+        err.code = 'ENODATA';
+        return cb(err, []);
+      }
+    }
+    return (originalResolve6 as any).apply(this, [hostname, ...args]);
+  };
+  (dns as any).resolve6 = patchedResolve6;
+}
 
 export interface EmailTestResult {
   success: boolean;
@@ -24,56 +49,10 @@ export interface EmailSendResult {
   sender?: string;
 }
 
-// In-memory cache for resolved IPv4 host to prevent excessive DNS requests
-let cachedIpv4Host: { host: string; ip: string; expires: number } | null = null;
-
-async function resolveIpv4Host(hostname: string): Promise<string> {
-  // If already an IPv4 address, return directly
-  if (net.isIPv4(hostname)) {
-    return hostname;
-  }
-
-  // Check valid cache (5 minutes TTL)
-  const now = Date.now();
-  if (cachedIpv4Host && cachedIpv4Host.host === hostname && cachedIpv4Host.expires > now) {
-    return cachedIpv4Host.ip;
-  }
-
-  // 1. Query A records exclusively via dns.resolve4
-  try {
-    const addresses = await dns.resolve4(hostname);
-    if (addresses && addresses.length > 0) {
-      const selectedIp = addresses[0];
-      cachedIpv4Host = { host: hostname, ip: selectedIp, expires: now + 300000 };
-      return selectedIp;
-    }
-  } catch (err: any) {
-    console.warn(`[DNS] dns.resolve4 notice for ${hostname}:`, err.message);
-  }
-
-  // 2. Fallback to dns.lookup with explicit family: 4
-  try {
-    const lookupResult = await dns.lookup(hostname, { family: 4 });
-    if (lookupResult && lookupResult.address) {
-      cachedIpv4Host = { host: hostname, ip: lookupResult.address, expires: now + 300000 };
-      return lookupResult.address;
-    }
-  } catch (err: any) {
-    console.warn(`[DNS] dns.lookup with family: 4 notice for ${hostname}:`, err.message);
-  }
-
-  // 3. Fallback well-known Google SMTP IPv4 if container resolver is completely locked
-  if (hostname === 'smtp.gmail.com') {
-    return '142.250.152.108';
-  }
-
-  return hostname;
-}
-
 class EmailService {
   public async getTransporter(): Promise<nodemailer.Transporter | null> {
     const emailCfg = config.email;
-    const originalHost = emailCfg.host || 'smtp.gmail.com';
+    const host = emailCfg.host || 'smtp.gmail.com';
     const port = Number(emailCfg.port || 587);
     const user = emailCfg.user;
     const pass = emailCfg.password;
@@ -83,48 +62,45 @@ class EmailService {
     }
 
     try {
-      const resolvedIp = await resolveIpv4Host(originalHost);
       const isDirectSsl = port === 465;
 
-      // Passing resolved IPv4 IP as host bypasses Nodemailer's randomized IPv6 DNS resolver,
-      // while servername & tls.servername preserve Google TLS SNI certificate validation.
       const transporter = nodemailer.createTransport({
-        host: resolvedIp,
+        host,
         port,
         secure: isDirectSsl,
-        servername: originalHost,
-        tls: {
-          servername: originalHost,
-          rejectUnauthorized: false,
-          minVersion: 'TLSv1.2',
-        },
         auth: {
           user,
           pass,
         },
-        connectionTimeout: 20000,
-        greetingTimeout: 15000,
-        socketTimeout: 25000,
-      } as any);
+        tls: {
+          rejectUnauthorized: false,
+          minVersion: 'TLSv1.2',
+        },
+        connectionTimeout: 30000,
+        greetingTimeout: 20000,
+        socketTimeout: 30000,
+      });
 
       return transporter;
     } catch (err: any) {
-      console.error('❌ Nodemailer getTransporter failed:', err.message);
+      console.error('❌ Nodemailer getTransporter initialization failed:', err.message);
       return null;
     }
   }
 
   public async testSmtpConnection(testRecipient?: string): Promise<EmailTestResult> {
-    const host = config.email.host || 'smtp.gmail.com';
-    const port = Number(config.email.port || 587);
-    const user = config.email.user;
-    const adminEmail = config.email.adminEmail || user;
+    const emailCfg = config.email;
+    const host = emailCfg.host || 'smtp.gmail.com';
+    const port = Number(emailCfg.port || 587);
+    const user = emailCfg.user;
+    const adminEmail = emailCfg.adminEmail || user;
+    const target = (testRecipient || adminEmail || user || 'test@example.com').trim();
 
-    if (!user || !config.email.password) {
+    if (!user || !emailCfg.password) {
       return {
         success: false,
         configured: false,
-        message: 'SMTP credentials missing in environment variables. Please provide EMAIL_USER and EMAIL_PASSWORD (Gmail App Password).',
+        message: 'Gmail SMTP credentials missing in environment variables. Please provide EMAIL_USER and EMAIL_PASSWORD (Gmail App Password).',
         host,
         port,
         user,
@@ -135,24 +111,21 @@ class EmailService {
     try {
       const transporter = await this.getTransporter();
       if (!transporter) {
-        throw new Error('Failed to initialize IPv4 SMTP transporter.');
+        throw new Error('Failed to initialize Gmail SMTP transporter.');
       }
 
-      // 1. Verify connection
       await transporter.verify();
 
-      // 2. Send test email using exact same configuration
-      const target = (testRecipient || adminEmail || user).trim();
       if (target && user) {
         const info = await transporter.sendMail({
           from: `"Zylo Commerce" <${user}>`,
           to: target,
-          subject: 'Zylo Store — SMTP Verification Test',
-          text: 'This is a test email confirming that your Zylo SMTP email delivery system is functioning properly over IPv4.',
+          subject: 'Zylo Store — Gmail SMTP Verification Test',
+          text: 'This is a test email confirming that your Zylo Gmail SMTP email delivery system is functioning properly.',
           html: `
             <div style="font-family: sans-serif; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 500px;">
               <h2 style="color: #4f46e5; margin-top: 0;">Zylo Email Service Verified</h2>
-              <p>Your SMTP mail configuration is online and successfully transmitting messages over IPv4.</p>
+              <p>Your Gmail SMTP mail configuration is online and successfully transmitting messages.</p>
               <p style="font-size: 12px; color: #6b7280;">Host: ${host}:${port} | Sender: ${user}</p>
             </div>
           `,
@@ -163,7 +136,7 @@ class EmailService {
       return {
         success: true,
         configured: true,
-        message: `SMTP connection verified and test message sent successfully to ${target}.`,
+        message: `Gmail SMTP connection verified and test message sent successfully to ${target}.`,
         host,
         port,
         user,
@@ -191,10 +164,13 @@ class EmailService {
     text?: string,
     options?: { replyTo?: string; isOrderNotification?: boolean }
   ): Promise<EmailSendResult> {
-    const user = config.email.user;
-    if (!user || !config.email.password) {
-      console.warn(`⚠️ [SMTP EMAIL SKIPPED] No EMAIL_USER/EMAIL_PASSWORD configured. Simulated delivery to: ${to}`);
-      return { success: false, error: 'EMAIL_USER and EMAIL_PASSWORD not configured', target: to };
+    const emailCfg = config.email;
+    const targetEmail = to.trim();
+    const user = emailCfg.user;
+
+    if (!user || !emailCfg.password) {
+      console.warn(`⚠️ [EMAIL SKIPPED] No EMAIL_USER/EMAIL_PASSWORD configured. Simulated delivery to: ${targetEmail}`);
+      return { success: false, error: 'EMAIL_USER and EMAIL_PASSWORD not configured', target: targetEmail };
     }
 
     const fromAddress = `"Zylo Commerce" <${user}>`;
@@ -204,7 +180,7 @@ class EmailService {
       try {
         const mailOptions: nodemailer.SendMailOptions = {
           from: fromAddress,
-          to: to.trim(),
+          to: targetEmail,
           subject,
           text: text || subject,
           html,
@@ -212,39 +188,30 @@ class EmailService {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log(`✅ [REAL EMAIL DELIVERED] To: ${to} | Subject: "${subject}" | MessageId: ${info.messageId}`);
+        console.log(`✅ [REAL EMAIL DELIVERED VIA GMAIL SMTP] To: ${targetEmail} | Subject: "${subject}" | MessageId: ${info.messageId}`);
 
         return {
           success: true,
           messageId: info.messageId,
           response: info.response,
           envelope: info.envelope,
-          target: to,
+          target: targetEmail,
           sender: user,
         };
       } catch (error: any) {
-        console.error(`❌ [SMTP DELIVERY FAILED] Could not send email to ${to}:`, error.message);
+        console.error(`❌ [SMTP DELIVERY FAILED] Could not send email to ${targetEmail}:`, error.message);
         if (error.message && (error.message.includes('Invalid login') || error.message.includes('535-5.7.8'))) {
           console.error('💡 Hint: For Gmail, you must generate and use a 16-character Google App Password (not your regular Gmail login password).');
         }
         return {
           success: false,
           error: error.message,
-          target: to,
+          target: targetEmail,
           sender: user,
         };
       }
     } else {
-      // Fallback logging if SMTP is not active
-      console.log(`\n==================================================`);
-      console.log(`📨 [ORDER NOTIFICATION DISPATCH - CONSOLE FALLBACK]`);
-      console.log(`To: ${to}`);
-      console.log(`Subject: ${subject}`);
-      console.log(`Date: ${new Date().toISOString()}`);
-      console.log(`--------------------------------------------------`);
-      console.log(text || 'HTML Template rendered (see customer/admin template)');
-      console.log(`==================================================\n`);
-      return { success: false, error: 'SMTP transporter not configured in environment', target: to, sender: user };
+      return { success: false, error: 'SMTP transporter not configured', target: targetEmail, sender: user };
     }
   }
 
