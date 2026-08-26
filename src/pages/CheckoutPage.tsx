@@ -204,17 +204,27 @@ export const CheckoutPage: React.FC = () => {
       const res = await api.post('/orders', orderPayload);
 
       if (res.data?.success && res.data.order) {
-        await refreshCart();
-        success('Order placed successfully! Confirmation email dispatched to ' + (res.data.order.userEmail || user?.email));
-        navigate(`/order-confirmation/${res.data.order._id || res.data.order.id}`);
+        const confirmedOrder = res.data.order;
+        const targetRef = confirmedOrder.orderNumber || confirmedOrder._id || confirmedOrder.id;
+        
+        // Refresh cart in background
+        refreshCart().catch(console.error);
+        
+        success('Order placed successfully! Confirmation email dispatched to ' + (confirmedOrder.userEmail || user?.email));
+        navigate(`/order-confirmation/${targetRef}`, {
+          state: { order: confirmedOrder },
+          replace: true,
+        });
       } else {
         error(res.data?.message || 'Could not place order. Please try again.');
       }
     } catch (err: any) {
+      console.error('Order creation error:', err);
+      const errMsg = err.response?.data?.message || err.message || 'Failed to place order.';
       if (err.response?.data?.requiresEmailUpdate) {
         error(err.response.data.message);
       } else {
-        error(err.response?.data?.message || 'Failed to place order.');
+        error(errMsg);
       }
     } finally {
       setIsProcessing(false);
