@@ -6,25 +6,37 @@ import { formatINR } from '../utils/formatters.js';
 import api from '../services/api.js';
 
 export const OrderConfirmationPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, orderNumber } = useParams<{ id?: string; orderNumber?: string }>();
+  const targetRef = id || orderNumber || '';
   const location = useLocation();
   const [order, setOrder] = useState<Order | null>(location.state?.order || null);
-  const [loading, setLoading] = useState(!location.state?.order && !!id);
+  const [loading, setLoading] = useState(!location.state?.order && !!targetRef);
 
   useEffect(() => {
-    if (!order && id) {
-      api.get(`/orders/${id}`)
+    if (!order && targetRef) {
+      setLoading(true);
+      api.get(`/orders/${encodeURIComponent(targetRef)}`)
         .then(res => {
           if (res.data?.success && res.data.order) {
             setOrder(res.data.order);
+          } else {
+            // Fallback to public tracking lookup
+            return api.get(`/orders/track/${encodeURIComponent(targetRef)}`);
           }
         })
-        .catch(err => console.error(err))
+        .then(fallbackRes => {
+          if (fallbackRes && fallbackRes.data?.success && fallbackRes.data.order) {
+            setOrder(fallbackRes.data.order);
+          }
+        })
+        .catch(err => {
+          console.warn('Order confirmation lookup notice:', err.message);
+        })
         .finally(() => setLoading(false));
     }
-  }, [id, order]);
+  }, [targetRef, order]);
 
-  const orderNum = order?.orderNumber || id || `ZYLO-${Date.now().toString().slice(-6)}`;
+  const orderNum = order?.orderNumber || targetRef || `ZYLO-${Date.now().toString().slice(-6)}`;
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center space-y-8">
