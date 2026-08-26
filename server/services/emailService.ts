@@ -1,77 +1,5 @@
-import nodemailer from 'nodemailer';
-import dns from 'node:dns';
-// @ts-ignore
-import shared from 'nodemailer/lib/shared/index.js';
+import { Resend } from 'resend';
 import { config } from '../config/env.js';
-
-// =========================================================================
-// IPv4 DNS Resolution Enforcer
-// Prevents ENETUNREACH on platforms that do not support outbound IPv6.
-// =========================================================================
-if (shared && typeof shared.resolveHostname === 'function') {
-  const originalResolveHostname = shared.resolveHostname;
-  shared.resolveHostname = function (options: any, callback: any) {
-    const host = options.host || options.servername || 'smtp.gmail.com';
-    dns.resolve4(host, (err, addresses) => {
-      if (err || !addresses || addresses.length === 0) {
-        dns.lookup(host, { family: 4 }, (lookupErr, address) => {
-          if (lookupErr || !address) {
-            return originalResolveHostname(options, callback);
-          }
-          return callback(null, {
-            host: address,
-            servername: host,
-            _addresses: [address],
-          });
-        });
-        return;
-      }
-      const selectedIp = addresses[Math.floor(Math.random() * addresses.length)];
-      return callback(null, {
-        host: selectedIp,
-        servername: host,
-        _addresses: addresses,
-      });
-    });
-  };
-}
-
-if (dns && dns.resolve6) {
-  const originalResolve6 = dns.resolve6;
-  const patchedResolve6: any = function (hostname: any, ...args: any[]) {
-    if (
-      typeof hostname === 'string' &&
-      (hostname.includes('smtp') || hostname.includes('gmail') || hostname.includes('google'))
-    ) {
-      const cb = typeof args[args.length - 1] === 'function' ? args[args.length - 1] : null;
-      if (cb) {
-        const err: any = new Error(`queryAaaa ENODATA ${hostname}`);
-        err.code = 'ENODATA';
-        return cb(err, []);
-      }
-    }
-    return (originalResolve6 as any).apply(this, [hostname, ...args]);
-  };
-  (dns as any).resolve6 = patchedResolve6;
-}
-
-if (dns.Resolver && dns.Resolver.prototype && dns.Resolver.prototype.resolve6) {
-  const origProtoResolve6 = dns.Resolver.prototype.resolve6;
-  (dns.Resolver.prototype as any).resolve6 = function (hostname: any, ...args: any[]) {
-    if (
-      typeof hostname === 'string' &&
-      (hostname.includes('smtp') || hostname.includes('gmail') || hostname.includes('google'))
-    ) {
-      const cb = typeof args[args.length - 1] === 'function' ? args[args.length - 1] : null;
-      if (cb) {
-        const err: any = new Error(`queryAaaa ENODATA ${hostname}`);
-        err.code = 'ENODATA';
-        return cb(err, []);
-      }
-    }
-    return origProtoResolve6.apply(this, [hostname, ...args]);
-  };
-}
 
 export interface EmailTestResult {
   success: boolean;
@@ -97,119 +25,87 @@ export interface EmailSendResult {
 }
 
 class EmailService {
-  public async getTransporter(): Promise<nodemailer.Transporter | null> {
-    const emailCfg = config.email;
-    const host = emailCfg.host || 'smtp.gmail.com';
-    const port = Number(emailCfg.port || 587);
-    const user = emailCfg.user;
-    const pass = emailCfg.password;
+  private resend: Resend | null = null;
+  private readonly defaultSender = 'Zylo Store <onboarding@resend.dev>';
 
-    if (!user || !pass) {
+  private getClient(): Resend | null {
+    const apiKey = process.env.RESEND_API_KEY || config.resendApiKey;
+    if (!apiKey) {
       return null;
     }
-
-    try {
-      const isDirectSsl = port === 465;
-
-      const transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure: isDirectSsl, // true for port 465 (SSL), false for port 587 (STARTTLS)
-        auth: {
-          user,
-          pass,
-        },
-        tls: {
-          rejectUnauthorized: false,
-          minVersion: 'TLSv1.2',
-        },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 15000,
-      });
-
-      return transporter;
-    } catch (err: any) {
-      console.error('❌ Nodemailer getTransporter initialization failed:', err.message);
-      return null;
+    if (!this.resend) {
+      this.resend = new Resend(apiKey);
     }
+    return this.resend;
   }
 
   public async testSmtpConnection(testRecipient?: string): Promise<EmailTestResult> {
-    const emailCfg = config.email;
-    const host = emailCfg.host || 'smtp.gmail.com';
-    const port = Number(emailCfg.port || 587);
-    const user = emailCfg.user;
-    const adminEmail = emailCfg.adminEmail || user;
-    const target = (testRecipient || adminEmail || user || 'test@example.com').trim();
+    const apiKey = process.env.RESEND_API_KEY || config.resendApiKey;
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || config.email.adminEmail || 'bahmithabegam@gmail.com';
+    const target = (testRecipient || adminEmail || 'test@example.com').trim();
 
-    if (!user || !emailCfg.password) {
+    if (!apiKey) {
       return {
         success: false,
         configured: false,
-        message: 'Gmail SMTP credentials missing in environment variables. Please provide EMAIL_USER and EMAIL_PASSWORD (Gmail App Password).',
-        host,
-        port,
-        user,
+        provider: 'Resend API',
+        message: 'RESEND_API_KEY is not configured in environment variables.',
+        user: this.defaultSender,
         adminEmail,
       };
     }
 
     try {
-      const transporter = await this.getTransporter();
-      if (!transporter) {
-        throw new Error('Failed to initialize Gmail SMTP transporter.');
+      const resendClient = this.getClient();
+      if (!resendClient) {
+        throw new Error('Failed to initialize Resend client.');
       }
 
-      const verifyTimeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('SMTP verify timed out after 10s')), 10000)
-      );
-      await Promise.race([transporter.verify(), verifyTimeout]);
+      const { data, error } = await resendClient.emails.send({
+        from: this.defaultSender,
+        to: [target],
+        subject: 'Zylo Store — Resend API Verification Test',
+        text: 'This is a test email confirming that your Zylo Resend API email delivery system is functioning properly.',
+        html: `
+          <div style="font-family: sans-serif; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 500px;">
+            <h2 style="color: #4f46e5; margin-top: 0;">Zylo Email Service Verified</h2>
+            <p>Your Resend API email configuration is online and successfully transmitting messages over HTTPS (Port 443).</p>
+            <p style="font-size: 12px; color: #6b7280;">Provider: Resend API | Sender: ${this.defaultSender}</p>
+          </div>
+        `,
+      });
 
-      if (target && user) {
-        const sendTimeout = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('SMTP send timed out after 15s')), 15000)
-        );
-        const info = await Promise.race([
-          transporter.sendMail({
-            from: `"Zylo Commerce" <${user}>`,
-            to: target,
-            subject: 'Zylo Store — Gmail SMTP Verification Test',
-            text: 'This is a test email confirming that your Zylo Gmail SMTP email delivery system is functioning properly.',
-            html: `
-              <div style="font-family: sans-serif; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 500px;">
-                <h2 style="color: #4f46e5; margin-top: 0;">Zylo Email Service Verified</h2>
-                <p>Your Gmail SMTP mail configuration is online and successfully transmitting messages.</p>
-                <p style="font-size: 12px; color: #6b7280;">Host: ${host}:${port} | Sender: ${user}</p>
-              </div>
-            `,
-          }),
-          sendTimeout,
-        ]);
-        console.log(`✅ [SMTP TEST DELIVERED] MessageId: ${info.messageId} | Response: ${info.response}`);
+      if (error) {
+        console.error('❌ Resend Verification Error:', error);
+        return {
+          success: false,
+          configured: true,
+          provider: 'Resend API',
+          message: `Resend verification failed: ${error.message}`,
+          error: error.message,
+          user: this.defaultSender,
+          adminEmail,
+        };
       }
 
+      console.log(`✅ [RESEND TEST DELIVERED] MessageId: ${data?.id}`);
       return {
         success: true,
         configured: true,
-        provider: 'Gmail SMTP',
-        message: `Gmail SMTP connection verified and test message sent successfully to ${target}.`,
-        host,
-        port,
-        user,
+        provider: 'Resend API',
+        message: `Resend API connection verified and test message sent successfully to ${target}.`,
+        user: this.defaultSender,
         adminEmail,
       };
     } catch (err: any) {
-      console.error('❌ SMTP Verification Error:', err);
+      console.error('❌ Resend Verification Error:', err);
       return {
         success: false,
         configured: true,
-        provider: 'Gmail SMTP',
-        message: `SMTP verification failed: ${err.message}`,
+        provider: 'Resend API',
+        message: `Resend verification failed: ${err.message}`,
         error: err.message,
-        host,
-        port,
-        user,
+        user: this.defaultSender,
         adminEmail,
       };
     }
@@ -222,61 +118,58 @@ class EmailService {
     text?: string,
     options?: { replyTo?: string; isOrderNotification?: boolean }
   ): Promise<EmailSendResult> {
-    const emailCfg = config.email;
+    const apiKey = process.env.RESEND_API_KEY || config.resendApiKey;
     const targetEmail = to.trim();
-    const user = emailCfg.user;
 
-    if (!user || !emailCfg.password) {
-      console.warn(`⚠️ [EMAIL SKIPPED] No EMAIL_USER/EMAIL_PASSWORD configured. Simulated delivery to: ${targetEmail}`);
-      return { success: false, error: 'EMAIL_USER and EMAIL_PASSWORD not configured', target: targetEmail };
+    if (!apiKey) {
+      console.warn(`⚠️ [EMAIL SKIPPED] RESEND_API_KEY not configured. Simulated delivery to: ${targetEmail}`);
+      return { success: false, error: 'RESEND_API_KEY not configured', target: targetEmail };
     }
 
-    const fromAddress = `"Zylo Commerce" <${user}>`;
-    const transporter = await this.getTransporter();
+    const resendClient = this.getClient();
+    if (!resendClient) {
+      return { success: false, error: 'Resend client initialization failed', target: targetEmail, sender: this.defaultSender };
+    }
 
-    if (transporter) {
-      try {
-        const mailOptions: nodemailer.SendMailOptions = {
-          from: fromAddress,
-          to: targetEmail,
-          subject,
-          text: text || subject,
-          html,
-          replyTo: options?.replyTo || user,
-        };
+    try {
+      const { data, error } = await resendClient.emails.send({
+        from: this.defaultSender,
+        to: [targetEmail],
+        subject,
+        text: text || subject,
+        html,
+        reply_to: options?.replyTo || process.env.ADMIN_EMAIL || undefined,
+      });
 
-        // Guarantee maximum 15 second execution to prevent indefinite hang
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Gmail SMTP send operation timed out after 15s')), 15000)
-        );
-
-        const info = await Promise.race([transporter.sendMail(mailOptions), timeoutPromise]);
-        console.log(`✅ [SMTP DELIVERY SUCCESS] To: ${targetEmail} | Subject: "${subject}" | MessageId: ${info.messageId}`);
-
-        return {
-          success: true,
-          provider: 'smtp',
-          messageId: info.messageId,
-          response: info.response,
-          envelope: info.envelope,
-          target: targetEmail,
-          sender: user,
-        };
-      } catch (error: any) {
-        console.error(`❌ [SMTP DELIVERY FAILED] Could not send email to ${targetEmail}:`, error.message);
-        if (error.message && (error.message.includes('Invalid login') || error.message.includes('535-5.7.8'))) {
-          console.error('💡 Hint: For Gmail, you must generate and use a 16-character Google App Password (not your regular Gmail login password).');
-        }
+      if (error) {
+        console.error(`❌ [RESEND DELIVERY FAILED] Could not send email to ${targetEmail}:`, error.message);
         return {
           success: false,
-          provider: 'smtp',
+          provider: 'resend',
           error: error.message,
           target: targetEmail,
-          sender: user,
+          sender: this.defaultSender,
         };
       }
-    } else {
-      return { success: false, error: 'SMTP transporter not configured', target: targetEmail, sender: user };
+
+      console.log(`✅ [RESEND DELIVERY SUCCESS] To: ${targetEmail} | Subject: "${subject}" | MessageId: ${data?.id}`);
+
+      return {
+        success: true,
+        provider: 'resend',
+        messageId: data?.id,
+        target: targetEmail,
+        sender: this.defaultSender,
+      };
+    } catch (error: any) {
+      console.error(`❌ [RESEND DELIVERY FAILED] Could not send email to ${targetEmail}:`, error.message);
+      return {
+        success: false,
+        provider: 'resend',
+        error: error.message,
+        target: targetEmail,
+        sender: this.defaultSender,
+      };
     }
   }
 
