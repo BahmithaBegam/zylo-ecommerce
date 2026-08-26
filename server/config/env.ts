@@ -6,12 +6,18 @@ export const config = {
   mongoUri: process.env.MONGO_URI || '',
   jwtSecret: process.env.JWT_SECRET || 'zylo_super_secure_jwt_secret_2026',
   get email() {
+    const rawUser = process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.EMAIL_USERNAME || '';
+    const rawPass = process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || '';
+    const rawHost = process.env.EMAIL_HOST || 'smtp.gmail.com';
+    const rawPort = process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT, 10) : 587;
+    const rawAdmin = process.env.ADMIN_EMAIL || rawUser || '';
+
     return {
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.EMAIL_PORT || '587', 10),
-      user: process.env.EMAIL_USER || '',
-      password: process.env.EMAIL_PASSWORD || '',
-      adminEmail: process.env.ADMIN_EMAIL || process.env.EMAIL_USER || '',
+      host: rawHost.trim(),
+      port: rawPort,
+      user: rawUser.trim(),
+      password: rawPass.replace(/\s+/g, ''), // Strip any spaces from 16-character Google App Passwords
+      adminEmail: rawAdmin.trim(),
     };
   },
   clientUrl: process.env.CLIENT_URL || '',
