@@ -5,6 +5,7 @@ export const config = {
   port: 3000,
   mongoUri: process.env.MONGO_URI || '',
   jwtSecret: process.env.JWT_SECRET || 'zylo_super_secure_jwt_secret_2026',
+  resendApiKey: (process.env.RESEND_API_KEY || '').trim(),
   get email() {
     const rawUser = process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.EMAIL_USERNAME || '';
     const rawPass = process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || '';
