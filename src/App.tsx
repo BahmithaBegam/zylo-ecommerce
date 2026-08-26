@@ -88,6 +88,7 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
+                    <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
                     <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />
                     <Route path="/orders/track" element={<OrderTrackingPage />} />
                     <Route
