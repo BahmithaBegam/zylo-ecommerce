@@ -49,6 +49,9 @@ class EmailService {
           tls: {
             rejectUnauthorized: false,
           },
+          connectionTimeout: 5000,
+          greetingTimeout: 5000,
+          socketTimeout: 8000,
         });
         this.isConfigured = true;
       } catch (err: any) {
