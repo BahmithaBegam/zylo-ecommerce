@@ -1,11 +1,7 @@
 import nodemailer from 'nodemailer';
-import dns from 'node:dns';
+import dns from 'node:dns/promises';
+import net from 'node:net';
 import { config } from '../config/env.js';
-
-// Ensure IPv4 lookup order is enforced
-if (typeof dns.setDefaultResultOrder === 'function') {
-  dns.setDefaultResultOrder('ipv4first');
-}
 
 export interface EmailTestResult {
   success: boolean;
@@ -28,66 +24,103 @@ export interface EmailSendResult {
   sender?: string;
 }
 
-class EmailService {
-  private transporter: nodemailer.Transporter | null = null;
-  private isConfigured: boolean = false;
+// In-memory cache for resolved IPv4 host to prevent excessive DNS requests
+let cachedIpv4Host: { host: string; ip: string; expires: number } | null = null;
 
-  constructor() {
-    this.initTransporter();
+async function resolveIpv4Host(hostname: string): Promise<string> {
+  // If already an IPv4 address, return directly
+  if (net.isIPv4(hostname)) {
+    return hostname;
   }
 
-  public initTransporter() {
+  // Check valid cache (5 minutes TTL)
+  const now = Date.now();
+  if (cachedIpv4Host && cachedIpv4Host.host === hostname && cachedIpv4Host.expires > now) {
+    return cachedIpv4Host.ip;
+  }
+
+  // 1. Query A records exclusively via dns.resolve4
+  try {
+    const addresses = await dns.resolve4(hostname);
+    if (addresses && addresses.length > 0) {
+      const selectedIp = addresses[0];
+      cachedIpv4Host = { host: hostname, ip: selectedIp, expires: now + 300000 };
+      return selectedIp;
+    }
+  } catch (err: any) {
+    console.warn(`[DNS] dns.resolve4 notice for ${hostname}:`, err.message);
+  }
+
+  // 2. Fallback to dns.lookup with explicit family: 4
+  try {
+    const lookupResult = await dns.lookup(hostname, { family: 4 });
+    if (lookupResult && lookupResult.address) {
+      cachedIpv4Host = { host: hostname, ip: lookupResult.address, expires: now + 300000 };
+      return lookupResult.address;
+    }
+  } catch (err: any) {
+    console.warn(`[DNS] dns.lookup with family: 4 notice for ${hostname}:`, err.message);
+  }
+
+  // 3. Fallback well-known Google SMTP IPv4 if container resolver is completely locked
+  if (hostname === 'smtp.gmail.com') {
+    return '142.250.152.108';
+  }
+
+  return hostname;
+}
+
+class EmailService {
+  public async getTransporter(): Promise<nodemailer.Transporter | null> {
     const emailCfg = config.email;
-    const host = emailCfg.host || 'smtp.gmail.com';
+    const originalHost = emailCfg.host || 'smtp.gmail.com';
     const port = Number(emailCfg.port || 587);
     const user = emailCfg.user;
     const pass = emailCfg.password;
 
-    if (user && pass) {
-      try {
-        const isDirectSsl = port === 465;
+    if (!user || !pass) {
+      return null;
+    }
 
-        // Using host: 'smtp.gmail.com', port: 587 (STARTTLS), family: 4 explicitly
-        // prevents ENETUNREACH IPv6 failures on cloud container environments (Render/Docker)
-        this.transporter = nodemailer.createTransport({
-          host,
-          port,
-          secure: isDirectSsl, // false for port 587 (STARTTLS), true for port 465
-          family: 4, // Force IPv4 network routing to prevent IPv6 ENETUNREACH
-          auth: {
-            user,
-            pass,
-          },
-          tls: {
-            rejectUnauthorized: false,
-            minVersion: 'TLSv1.2',
-          },
-          connectionTimeout: 20000,
-          greetingTimeout: 15000,
-          socketTimeout: 25000,
-        } as any);
+    try {
+      const resolvedIp = await resolveIpv4Host(originalHost);
+      const isDirectSsl = port === 465;
 
-        this.isConfigured = true;
-      } catch (err: any) {
-        console.error('❌ Nodemailer initialization failed:', err.message);
-        this.isConfigured = false;
-        this.transporter = null;
-      }
-    } else {
-      this.isConfigured = false;
-      this.transporter = null;
+      // Passing resolved IPv4 IP as host bypasses Nodemailer's randomized IPv6 DNS resolver,
+      // while servername & tls.servername preserve Google TLS SNI certificate validation.
+      const transporter = nodemailer.createTransport({
+        host: resolvedIp,
+        port,
+        secure: isDirectSsl,
+        servername: originalHost,
+        tls: {
+          servername: originalHost,
+          rejectUnauthorized: false,
+          minVersion: 'TLSv1.2',
+        },
+        auth: {
+          user,
+          pass,
+        },
+        connectionTimeout: 20000,
+        greetingTimeout: 15000,
+        socketTimeout: 25000,
+      } as any);
+
+      return transporter;
+    } catch (err: any) {
+      console.error('❌ Nodemailer getTransporter failed:', err.message);
+      return null;
     }
   }
 
   public async testSmtpConnection(testRecipient?: string): Promise<EmailTestResult> {
-    this.initTransporter();
-
     const host = config.email.host || 'smtp.gmail.com';
     const port = Number(config.email.port || 587);
     const user = config.email.user;
     const adminEmail = config.email.adminEmail || user;
 
-    if (!this.isConfigured || !this.transporter) {
+    if (!user || !config.email.password) {
       return {
         success: false,
         configured: false,
@@ -100,21 +133,26 @@ class EmailService {
     }
 
     try {
+      const transporter = await this.getTransporter();
+      if (!transporter) {
+        throw new Error('Failed to initialize IPv4 SMTP transporter.');
+      }
+
       // 1. Verify connection
-      await this.transporter.verify();
+      await transporter.verify();
 
       // 2. Send test email using exact same configuration
       const target = (testRecipient || adminEmail || user).trim();
       if (target && user) {
-        const info = await this.transporter.sendMail({
+        const info = await transporter.sendMail({
           from: `"Zylo Commerce" <${user}>`,
           to: target,
           subject: 'Zylo Store — SMTP Verification Test',
-          text: 'This is a test email confirming that your Zylo SMTP email delivery system is functioning properly.',
+          text: 'This is a test email confirming that your Zylo SMTP email delivery system is functioning properly over IPv4.',
           html: `
             <div style="font-family: sans-serif; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 500px;">
               <h2 style="color: #4f46e5; margin-top: 0;">Zylo Email Service Verified</h2>
-              <p>Your SMTP mail configuration is online and successfully transmitting messages.</p>
+              <p>Your SMTP mail configuration is online and successfully transmitting messages over IPv4.</p>
               <p style="font-size: 12px; color: #6b7280;">Host: ${host}:${port} | Sender: ${user}</p>
             </div>
           `,
@@ -153,8 +191,6 @@ class EmailService {
     text?: string,
     options?: { replyTo?: string; isOrderNotification?: boolean }
   ): Promise<EmailSendResult> {
-    this.initTransporter();
-
     const user = config.email.user;
     if (!user || !config.email.password) {
       console.warn(`⚠️ [SMTP EMAIL SKIPPED] No EMAIL_USER/EMAIL_PASSWORD configured. Simulated delivery to: ${to}`);
@@ -162,8 +198,9 @@ class EmailService {
     }
 
     const fromAddress = `"Zylo Commerce" <${user}>`;
+    const transporter = await this.getTransporter();
 
-    if (this.isConfigured && this.transporter) {
+    if (transporter) {
       try {
         const mailOptions: nodemailer.SendMailOptions = {
           from: fromAddress,
@@ -174,7 +211,7 @@ class EmailService {
           replyTo: options?.replyTo || user,
         };
 
-        const info = await this.transporter.sendMail(mailOptions);
+        const info = await transporter.sendMail(mailOptions);
         console.log(`✅ [REAL EMAIL DELIVERED] To: ${to} | Subject: "${subject}" | MessageId: ${info.messageId}`);
 
         return {
