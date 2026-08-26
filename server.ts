@@ -1,7 +1,13 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
+import dns from 'node:dns';
 import { createServer as createViteServer } from 'vite';
+
+// Ensure Node defaults to IPv4 first to prevent ENETUNREACH errors on cloud container platforms like Render
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 // Load environment variables
 dotenv.config();
