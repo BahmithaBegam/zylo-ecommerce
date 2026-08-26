@@ -110,7 +110,7 @@ export const addToWishlist = async (req: AuthRequest, res: Response) => {
           productIds: memWishlist.productIds,
           updatedAt: new Date(),
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
       );
     }
 
@@ -168,7 +168,7 @@ export const removeFromWishlist = async (req: AuthRequest, res: Response) => {
           productIds: memWishlist.productIds,
           updatedAt: new Date(),
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
       );
     }
 
@@ -240,7 +240,7 @@ export const toggleWishlist = async (req: AuthRequest, res: Response) => {
           productIds: memWishlist.productIds,
           updatedAt: new Date(),
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
       );
     }
 
