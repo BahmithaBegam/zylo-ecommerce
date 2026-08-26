@@ -210,69 +210,22 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       if (p) db.syncProductToMongo(p).catch(console.error);
     }
 
-    // 6. Trigger Nodemailer emails (Admin + Customer)
-    const emailDispatchResults: {
-      adminEmail: EmailSendResult;
-      customerEmail: EmailSendResult;
-    } = {
-      adminEmail: { success: false, error: '' },
-      customerEmail: { success: false, error: '' },
-    };
-
-    let emailFunctionCalled = false;
-    try {
-      emailFunctionCalled = true;
-      const [adminResult, customerResult] = await Promise.allSettled([
-        emailService.sendAdminNewOrderEmail(newOrder),
-        emailService.sendCustomerOrderConfirmationEmail(newOrder),
-      ]);
-
-      if (adminResult.status === 'fulfilled') {
-        emailDispatchResults.adminEmail = adminResult.value;
-      } else {
-        emailDispatchResults.adminEmail = { success: false, error: adminResult.reason?.message || 'Failed' };
-      }
-
-      if (customerResult.status === 'fulfilled') {
-        emailDispatchResults.customerEmail = customerResult.value;
-      } else {
-        emailDispatchResults.customerEmail = { success: false, error: customerResult.reason?.message || 'Failed' };
-      }
-    } catch (emailErr: any) {
-      console.error('Background order email processing warning:', emailErr);
-    }
-
-    const adminRecipient = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || 'N/A';
-    const customerRecipient = newOrder.userEmail || 'N/A';
-    const sender = process.env.EMAIL_USER || 'N/A';
-
-    console.log(`
-==================================================
-ORDER EMAIL DELIVERY DEBUG
-Recipient: ${customerRecipient}
-Sender: ${sender}
-Envelope recipient: ${customerRecipient}
-SMTP response: ${emailDispatchResults.customerEmail.response || (emailDispatchResults.customerEmail.success ? '250 OK' : 'Failed')}
-Message ID: ${emailDispatchResults.customerEmail.messageId || 'N/A (' + (emailDispatchResults.customerEmail.error || 'Failed') + ')'}
-==================================================
-`);
-
-    console.log(`
-==================================================
-ADMIN NOTIFICATION DELIVERY DEBUG
-Recipient: ${adminRecipient}
-Sender: ${sender}
-Envelope recipient: ${adminRecipient}
-SMTP response: ${emailDispatchResults.adminEmail.response || (emailDispatchResults.adminEmail.success ? '250 OK' : 'Failed')}
-Message ID: ${emailDispatchResults.adminEmail.messageId || 'N/A (' + (emailDispatchResults.adminEmail.error || 'Failed') + ')'}
-==================================================
-`);
+    // 6. Trigger Nodemailer emails (Admin + Customer) asynchronously in background
+    Promise.allSettled([
+      emailService.sendAdminNewOrderEmail(newOrder),
+      emailService.sendCustomerOrderConfirmationEmail(newOrder),
+    ]).then(([adminResult, customerResult]) => {
+      const adminSuccess = adminResult.status === 'fulfilled' && adminResult.value.success;
+      const customerSuccess = customerResult.status === 'fulfilled' && customerResult.value.success;
+      console.log(`📧 [EMAIL BACKGROUND] Admin: ${adminSuccess ? 'Sent' : 'Skipped/Failed'} | Customer: ${customerSuccess ? 'Sent' : 'Skipped/Failed'}`);
+    }).catch(emailErr => {
+      console.warn('Background order email processing warning:', emailErr);
+    });
 
     return res.status(201).json({
       success: true,
       message: 'Order placed successfully! Confirmation email dispatched.',
       order: newOrder,
-      emailDispatch: emailDispatchResults,
     });
   } catch (err: any) {
     console.error('Order creation error:', err);
