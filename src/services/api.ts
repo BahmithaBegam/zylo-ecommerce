@@ -27,7 +27,8 @@ api.interceptors.response.use(
       error.response?.data?.message ||
       error.message ||
       'An unexpected error occurred. Please try again.';
-    return Promise.reject(new Error(message));
+    error.message = message;
+    return Promise.reject(error);
   }
 );
 
