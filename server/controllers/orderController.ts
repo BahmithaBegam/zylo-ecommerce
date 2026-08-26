@@ -216,8 +216,21 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       emailService.sendCustomerOrderConfirmationEmail(newOrder),
     ]).then(([adminResult, customerResult]) => {
       const adminSuccess = adminResult.status === 'fulfilled' && adminResult.value.success;
+      const adminErr = adminResult.status === 'fulfilled' ? adminResult.value.error : adminResult.reason?.message;
       const customerSuccess = customerResult.status === 'fulfilled' && customerResult.value.success;
-      console.log(`📧 [EMAIL BACKGROUND] Admin: ${adminSuccess ? 'Sent' : 'Skipped/Failed'} | Customer: ${customerSuccess ? 'Sent' : 'Skipped/Failed'}`);
+      const customerErr = customerResult.status === 'fulfilled' ? customerResult.value.error : customerResult.reason?.message;
+
+      if (customerSuccess) {
+        console.log(`✅ [ORDER CONFIRMATION EMAIL DELIVERED] Successfully sent to customer: ${newOrder.userEmail} (Order #${newOrder.orderNumber})`);
+      } else {
+        console.warn(`⚠️ [ORDER CONFIRMATION EMAIL NOT SENT] Customer: ${newOrder.userEmail} | Reason: ${customerErr || 'Unknown error'}`);
+      }
+
+      if (adminSuccess) {
+        console.log(`✅ [ADMIN ORDER NOTIFICATION DELIVERED] Order #${newOrder.orderNumber}`);
+      } else {
+        console.warn(`⚠️ [ADMIN ORDER NOTIFICATION NOT SENT] Reason: ${adminErr || 'Unknown error'}`);
+      }
     }).catch(emailErr => {
       console.warn('Background order email processing warning:', emailErr);
     });
