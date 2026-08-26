@@ -31,28 +31,47 @@ class EmailService {
   }
 
   public initTransporter() {
-    const host = process.env.EMAIL_HOST || config.email.host || 'smtp.gmail.com';
-    const port = Number(process.env.EMAIL_PORT || config.email.port || 587);
-    const user = process.env.EMAIL_USER || config.email.user;
-    const pass = process.env.EMAIL_PASSWORD || config.email.password;
+    const emailCfg = config.email;
+    const host = emailCfg.host || 'smtp.gmail.com';
+    const port = emailCfg.port || (host.includes('gmail') ? 465 : 587);
+    const user = emailCfg.user;
+    const pass = emailCfg.password;
 
     if (user && pass) {
       try {
-        this.transporter = nodemailer.createTransport({
-          host,
-          port,
-          secure: port === 465,
-          auth: {
-            user,
-            pass,
-          },
-          tls: {
-            rejectUnauthorized: false,
-          },
-          connectionTimeout: 5000,
-          greetingTimeout: 5000,
-          socketTimeout: 8000,
-        });
+        if (host.includes('gmail') || user.endsWith('@gmail.com')) {
+          // Dedicated high-reliability configuration for Gmail
+          this.transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user,
+              pass,
+            },
+            tls: {
+              rejectUnauthorized: false,
+            },
+            connectionTimeout: 15000,
+            greetingTimeout: 10000,
+            socketTimeout: 20000,
+          });
+        } else {
+          // Standard SMTP transport configuration
+          this.transporter = nodemailer.createTransport({
+            host,
+            port,
+            secure: port === 465,
+            auth: {
+              user,
+              pass,
+            },
+            tls: {
+              rejectUnauthorized: false,
+            },
+            connectionTimeout: 15000,
+            greetingTimeout: 10000,
+            socketTimeout: 20000,
+          });
+        }
         this.isConfigured = true;
       } catch (err: any) {
         console.error('❌ Nodemailer initialization failed:', err.message);
@@ -68,16 +87,16 @@ class EmailService {
   public async testSmtpConnection(testRecipient?: string): Promise<EmailTestResult> {
     this.initTransporter();
 
-    const host = process.env.EMAIL_HOST || config.email.host || 'smtp.gmail.com';
-    const port = Number(process.env.EMAIL_PORT || config.email.port || 587);
-    const user = process.env.EMAIL_USER || config.email.user;
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || config.email.adminEmail || config.email.user;
+    const host = config.email.host || 'smtp.gmail.com';
+    const port = config.email.port || (host.includes('gmail') ? 465 : 587);
+    const user = config.email.user;
+    const adminEmail = config.email.adminEmail || user;
 
     if (!this.isConfigured || !this.transporter) {
       return {
         success: false,
         configured: false,
-        message: 'SMTP credentials missing in environment variables. Please provide EMAIL_USER and EMAIL_PASSWORD.',
+        message: 'SMTP credentials missing in environment variables. Please provide EMAIL_USER and EMAIL_PASSWORD (Gmail App Password).',
         host,
         port,
         user,
@@ -90,7 +109,7 @@ class EmailService {
       await this.transporter.verify();
 
       // 2. Send test email using exact same configuration
-      const target = testRecipient || adminEmail || user;
+      const target = (testRecipient || adminEmail || user).trim();
       if (target && user) {
         const info = await this.transporter.sendMail({
           from: `"Zylo Commerce" <${user}>`,
@@ -141,10 +160,10 @@ class EmailService {
   ): Promise<EmailSendResult> {
     this.initTransporter();
 
-    const user = process.env.EMAIL_USER || config.email.user;
-    if (!user) {
-      console.warn('⚠️ [SMTP EMAIL SKIPPED] No EMAIL_USER found in environment.');
-      return { success: false, error: 'EMAIL_USER not configured', target: to };
+    const user = config.email.user;
+    if (!user || !config.email.password) {
+      console.warn(`⚠️ [SMTP EMAIL SKIPPED] No EMAIL_USER/EMAIL_PASSWORD configured. Simulated delivery to: ${to}`);
+      return { success: false, error: 'EMAIL_USER and EMAIL_PASSWORD not configured', target: to };
     }
 
     const fromAddress = `"Zylo Commerce" <${user}>`;
@@ -153,7 +172,7 @@ class EmailService {
       try {
         const mailOptions: nodemailer.SendMailOptions = {
           from: fromAddress,
-          to,
+          to: to.trim(),
           subject,
           text: text || subject,
           html,
@@ -161,24 +180,7 @@ class EmailService {
         };
 
         const info = await this.transporter.sendMail(mailOptions);
-        const envelopeRecipient = Array.isArray(info.envelope?.to)
-          ? info.envelope.to.join(', ')
-          : (info.envelope?.to || to);
-
-        if (options?.isOrderNotification) {
-          console.log(`
-==================================================
-ORDER EMAIL DELIVERY DEBUG
-Recipient: ${to}
-Sender: ${user}
-Envelope recipient: ${envelopeRecipient}
-SMTP response: ${info.response || '250 OK'}
-Message ID: ${info.messageId}
-==================================================
-`);
-        } else {
-          console.log(`✅ [REAL EMAIL SENT] MessageId: ${info.messageId} | To: ${to} | Subject: "${subject}"`);
-        }
+        console.log(`✅ [REAL EMAIL DELIVERED] To: ${to} | Subject: "${subject}" | MessageId: ${info.messageId}`);
 
         return {
           success: true,
@@ -190,6 +192,9 @@ Message ID: ${info.messageId}
         };
       } catch (error: any) {
         console.error(`❌ [SMTP DELIVERY FAILED] Could not send email to ${to}:`, error.message);
+        if (error.message && (error.message.includes('Invalid login') || error.message.includes('535-5.7.8'))) {
+          console.error('💡 Hint: For Gmail, you must generate and use a 16-character Google App Password (not your regular Gmail login password).');
+        }
         return {
           success: false,
           error: error.message,
@@ -207,7 +212,7 @@ Message ID: ${info.messageId}
       console.log(`--------------------------------------------------`);
       console.log(text || 'HTML Template rendered (see customer/admin template)');
       console.log(`==================================================\n`);
-      return { success: false, error: 'SMTP credentials not configured in environment', target: to, sender: user };
+      return { success: false, error: 'SMTP transporter not configured in environment', target: to, sender: user };
     }
   }
 
