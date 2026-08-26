@@ -221,7 +221,7 @@ class ZyloDB {
   public async syncUserToMongo(user: UserDoc) {
     if (mongoose.connection.readyState === 1) {
       try {
-        await (UserModel as any).findOneAndUpdate({ _id: user._id }, user, { upsert: true, new: true });
+        await (UserModel as any).findOneAndUpdate({ _id: user._id }, user, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('⚠️ MongoDB UserModel sync error:', err.message);
       }
@@ -231,7 +231,7 @@ class ZyloDB {
   public async syncProductToMongo(product: ProductDoc) {
     if (mongoose.connection.readyState === 1) {
       try {
-        await (ProductModel as any).findOneAndUpdate({ _id: product._id }, product, { upsert: true, new: true });
+        await (ProductModel as any).findOneAndUpdate({ _id: product._id }, product, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('⚠️ MongoDB ProductModel sync error:', err.message);
       }
@@ -241,7 +241,7 @@ class ZyloDB {
   public async syncOrderToMongo(order: OrderDoc) {
     if (mongoose.connection.readyState === 1) {
       try {
-        await (OrderModel as any).findOneAndUpdate({ _id: order._id }, order, { upsert: true, new: true });
+        await (OrderModel as any).findOneAndUpdate({ _id: order._id }, order, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('⚠️ MongoDB OrderModel sync error:', err.message);
       }
@@ -251,7 +251,7 @@ class ZyloDB {
   public async syncCartToMongo(cart: CartDoc) {
     if (mongoose.connection.readyState === 1) {
       try {
-        await (CartModel as any).findOneAndUpdate({ _id: cart._id }, cart, { upsert: true, new: true });
+        await (CartModel as any).findOneAndUpdate({ _id: cart._id }, cart, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('⚠️ MongoDB CartModel sync error:', err.message);
       }
@@ -261,7 +261,7 @@ class ZyloDB {
   public async syncWishlistToMongo(wishlist: WishlistDoc) {
     if (mongoose.connection.readyState === 1) {
       try {
-        await (WishlistModel as any).findOneAndUpdate({ _id: wishlist._id }, wishlist, { upsert: true, new: true });
+        await (WishlistModel as any).findOneAndUpdate({ _id: wishlist._id }, wishlist, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('⚠️ MongoDB WishlistModel sync error:', err.message);
       }
@@ -271,7 +271,7 @@ class ZyloDB {
   public async syncReviewToMongo(review: ReviewDoc) {
     if (mongoose.connection.readyState === 1) {
       try {
-        await (ReviewModel as any).findOneAndUpdate({ _id: review._id }, review, { upsert: true, new: true });
+        await (ReviewModel as any).findOneAndUpdate({ _id: review._id }, review, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('⚠️ MongoDB ReviewModel sync error:', err.message);
       }
@@ -281,7 +281,7 @@ class ZyloDB {
   public async syncCouponToMongo(coupon: CouponDoc) {
     if (mongoose.connection.readyState === 1) {
       try {
-        await (CouponModel as any).findOneAndUpdate({ _id: coupon._id }, coupon, { upsert: true, new: true });
+        await (CouponModel as any).findOneAndUpdate({ _id: coupon._id }, coupon, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('⚠️ MongoDB CouponModel sync error:', err.message);
       }
@@ -291,7 +291,7 @@ class ZyloDB {
   public async syncNotificationToMongo(notif: NotificationDoc) {
     if (mongoose.connection.readyState === 1) {
       try {
-        await (NotificationModel as any).findOneAndUpdate({ _id: notif._id }, notif, { upsert: true, new: true });
+        await (NotificationModel as any).findOneAndUpdate({ _id: notif._id }, notif, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('⚠️ MongoDB NotificationModel sync error:', err.message);
       }
