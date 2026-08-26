@@ -1,5 +1,11 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
 import { config } from '../config/env.js';
+
+// Ensure IPv4 lookup order is enforced
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 export interface EmailTestResult {
   success: boolean;
@@ -33,45 +39,34 @@ class EmailService {
   public initTransporter() {
     const emailCfg = config.email;
     const host = emailCfg.host || 'smtp.gmail.com';
-    const port = emailCfg.port || (host.includes('gmail') ? 465 : 587);
+    const port = Number(emailCfg.port || 587);
     const user = emailCfg.user;
     const pass = emailCfg.password;
 
     if (user && pass) {
       try {
-        if (host.includes('gmail') || user.endsWith('@gmail.com')) {
-          // Dedicated high-reliability configuration for Gmail
-          this.transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              user,
-              pass,
-            },
-            tls: {
-              rejectUnauthorized: false,
-            },
-            connectionTimeout: 15000,
-            greetingTimeout: 10000,
-            socketTimeout: 20000,
-          });
-        } else {
-          // Standard SMTP transport configuration
-          this.transporter = nodemailer.createTransport({
-            host,
-            port,
-            secure: port === 465,
-            auth: {
-              user,
-              pass,
-            },
-            tls: {
-              rejectUnauthorized: false,
-            },
-            connectionTimeout: 15000,
-            greetingTimeout: 10000,
-            socketTimeout: 20000,
-          });
-        }
+        const isDirectSsl = port === 465;
+
+        // Using host: 'smtp.gmail.com', port: 587 (STARTTLS), family: 4 explicitly
+        // prevents ENETUNREACH IPv6 failures on cloud container environments (Render/Docker)
+        this.transporter = nodemailer.createTransport({
+          host,
+          port,
+          secure: isDirectSsl, // false for port 587 (STARTTLS), true for port 465
+          family: 4, // Force IPv4 network routing to prevent IPv6 ENETUNREACH
+          auth: {
+            user,
+            pass,
+          },
+          tls: {
+            rejectUnauthorized: false,
+            minVersion: 'TLSv1.2',
+          },
+          connectionTimeout: 20000,
+          greetingTimeout: 15000,
+          socketTimeout: 25000,
+        } as any);
+
         this.isConfigured = true;
       } catch (err: any) {
         console.error('❌ Nodemailer initialization failed:', err.message);
@@ -88,7 +83,7 @@ class EmailService {
     this.initTransporter();
 
     const host = config.email.host || 'smtp.gmail.com';
-    const port = config.email.port || (host.includes('gmail') ? 465 : 587);
+    const port = Number(config.email.port || 587);
     const user = config.email.user;
     const adminEmail = config.email.adminEmail || user;
 
