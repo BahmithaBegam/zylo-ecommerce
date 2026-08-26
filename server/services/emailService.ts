@@ -1,19 +1,13 @@
 import nodemailer from 'nodemailer';
 import dns from 'node:dns';
+import https from 'node:https';
 // @ts-ignore
 import shared from 'nodemailer/lib/shared/index.js';
 import { config } from '../config/env.js';
 
 // =========================================================================
 // IPv4 DNS Resolution Enforcer for Cloud Containers (e.g. Render)
-// On cloud containers with no outbound IPv6 routing, Nodemailer's internal
-// resolveHostname queries both IPv4 & IPv6 and randomly picks an IPv6 IP.
-// On Linux/Render, connecting to an unreachable IPv6 IP hangs for minutes
-// waiting for TCP SYN timeouts.
-//
-// By overriding Nodemailer's shared.resolveHostname, we force all SMTP
-// connections to resolve to Google's live dynamic IPv4 addresses exclusively,
-// while preserving TLS SNI ('smtp.gmail.com') for certificate validation.
+// When falling back to SMTP, force IPv4 exclusively to prevent ENETUNREACH.
 // =========================================================================
 if (shared && typeof shared.resolveHostname === 'function') {
   const originalResolveHostname = shared.resolveHostname;
@@ -43,7 +37,6 @@ if (shared && typeof shared.resolveHostname === 'function') {
   };
 }
 
-// Fallback patch for standard dns.resolve6 & Resolver instance
 if (dns && dns.resolve6) {
   const originalResolve6 = dns.resolve6;
   const patchedResolve6: any = function (hostname: any, ...args: any[]) {
@@ -85,6 +78,7 @@ export interface EmailTestResult {
   success: boolean;
   message: string;
   configured: boolean;
+  provider?: string;
   host?: string;
   port?: number;
   user?: string;
@@ -94,12 +88,90 @@ export interface EmailTestResult {
 
 export interface EmailSendResult {
   success: boolean;
+  provider?: string;
   messageId?: string;
   response?: string;
   envelope?: any;
   error?: string;
   target?: string;
   sender?: string;
+}
+
+/**
+ * HTTPS REST Dispatcher for Resend API
+ * Resend runs 100% over HTTPS port 443 (which is never blocked on Render).
+ */
+async function sendViaResend(
+  apiKey: string,
+  from: string,
+  to: string,
+  subject: string,
+  html: string,
+  text?: string,
+  replyTo?: string
+): Promise<{ success: boolean; id?: string; error?: string; statusCode?: number }> {
+  return new Promise((resolve) => {
+    const payload = JSON.stringify({
+      from,
+      to: [to],
+      subject,
+      html,
+      text: text || undefined,
+      reply_to: replyTo || undefined,
+    });
+
+    const options: https.RequestOptions = {
+      hostname: 'api.resend.com',
+      port: 443,
+      path: '/emails',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey.trim()}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+      timeout: 15000,
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => (data += chunk));
+      res.on('end', () => {
+        const statusCode = res.statusCode || 0;
+        try {
+          const parsed = JSON.parse(data);
+          console.log(`📡 [RESEND API RESPONSE] Status: ${statusCode} | ID: ${parsed.id || 'N/A'}`);
+          if (statusCode >= 200 && statusCode < 300 && parsed.id) {
+            resolve({ success: true, id: parsed.id, statusCode });
+          } else {
+            const errMsg = parsed.message || parsed.error || `HTTP ${statusCode}: ${data}`;
+            resolve({ success: false, error: errMsg, statusCode });
+          }
+        } catch {
+          console.log(`📡 [RESEND API RESPONSE] Status: ${statusCode} (Raw): ${data}`);
+          if (statusCode >= 200 && statusCode < 300) {
+            resolve({ success: true, statusCode });
+          } else {
+            resolve({ success: false, error: `Invalid response from Resend (${statusCode}): ${data}`, statusCode });
+          }
+        }
+      });
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      console.error('❌ [RESEND TIMEOUT] Request to api.resend.com timed out after 15s');
+      resolve({ success: false, error: 'Resend API request timed out (15s)', statusCode: 408 });
+    });
+
+    req.on('error', (err) => {
+      console.error('❌ [RESEND NETWORK ERROR]:', err.message);
+      resolve({ success: false, error: err.message });
+    });
+
+    req.write(payload);
+    req.end();
+  });
 }
 
 class EmailService {
@@ -143,17 +215,49 @@ class EmailService {
 
   public async testSmtpConnection(testRecipient?: string): Promise<EmailTestResult> {
     const emailCfg = config.email;
+    const adminEmail = emailCfg.adminEmail || emailCfg.user;
+    const target = (testRecipient || adminEmail || emailCfg.user || 'test@example.com').trim();
+
+    // 1. If RESEND_API_KEY is configured, test via Resend HTTPS API (Port 443)
+    if (emailCfg.resendApiKey) {
+      const fromAddr = emailCfg.emailFrom || 'Zylo Commerce <onboarding@resend.dev>';
+      console.log(`🧪 [TESTING RESEND HTTPS API] Target: ${target} | From: ${fromAddr}`);
+      const res = await sendViaResend(
+        emailCfg.resendApiKey,
+        fromAddr,
+        target,
+        'Zylo Store — Resend HTTPS Verification Test',
+        `<div style="font-family: sans-serif; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px; max-width: 500px;">
+          <h2 style="color: #4f46e5; margin-top: 0;">Zylo Email Service Verified (Resend HTTPS)</h2>
+          <p>Your transactional email service is online and sending reliably via Resend HTTPS API (Port 443).</p>
+          <p style="font-size: 12px; color: #6b7280;">Provider: Resend HTTPS REST API (Port 443) | Sender: ${fromAddr}</p>
+        </div>`,
+        'Your transactional email service is online and sending reliably via Resend HTTPS API (Port 443).'
+      );
+
+      return {
+        success: res.success,
+        configured: true,
+        provider: 'Resend (HTTPS Port 443)',
+        message: res.success
+          ? `Resend HTTPS API connection verified and test message sent successfully to ${target}.`
+          : `Resend test failed: ${res.error}`,
+        error: res.error,
+        user: fromAddr,
+        adminEmail,
+      };
+    }
+
+    // 2. Otherwise fallback to Gmail SMTP
     const host = emailCfg.host || 'smtp.gmail.com';
     const port = Number(emailCfg.port || 587);
     const user = emailCfg.user;
-    const adminEmail = emailCfg.adminEmail || user;
-    const target = (testRecipient || adminEmail || user || 'test@example.com').trim();
 
     if (!user || !emailCfg.password) {
       return {
         success: false,
         configured: false,
-        message: 'Gmail SMTP credentials missing in environment variables. Please provide EMAIL_USER and EMAIL_PASSWORD (Gmail App Password).',
+        message: 'No email service credentials found. Set RESEND_API_KEY (Recommended for Render) or EMAIL_USER and EMAIL_PASSWORD.',
         host,
         port,
         user,
@@ -198,6 +302,7 @@ class EmailService {
       return {
         success: true,
         configured: true,
+        provider: 'Gmail SMTP',
         message: `Gmail SMTP connection verified and test message sent successfully to ${target}.`,
         host,
         port,
@@ -209,6 +314,7 @@ class EmailService {
       return {
         success: false,
         configured: true,
+        provider: 'Gmail SMTP',
         message: `SMTP verification failed: ${err.message}`,
         error: err.message,
         host,
@@ -228,11 +334,64 @@ class EmailService {
   ): Promise<EmailSendResult> {
     const emailCfg = config.email;
     const targetEmail = to.trim();
-    const user = emailCfg.user;
 
+    // =============================================================
+    // PRIMARY PATH: Resend HTTPS REST API (Port 443)
+    // Runs 100% over HTTPS port 443 without raw SMTP port blocks.
+    // =============================================================
+    if (emailCfg.resendApiKey) {
+      const fromAddress = emailCfg.emailFrom || 'Zylo Commerce <onboarding@resend.dev>';
+      console.log(`📨 [RESEND DISPATCH STARTED] Target: ${targetEmail} | Subject: "${subject}" | From: ${fromAddress}`);
+
+      try {
+        const res = await sendViaResend(
+          emailCfg.resendApiKey,
+          fromAddress,
+          targetEmail,
+          subject,
+          html,
+          text,
+          options?.replyTo || emailCfg.adminEmail || undefined
+        );
+
+        if (res.success) {
+          console.log(`✅ [RESEND EMAIL DELIVERED] Target: ${targetEmail} | MessageId: ${res.id}`);
+          return {
+            success: true,
+            provider: 'resend',
+            messageId: res.id,
+            target: targetEmail,
+            sender: fromAddress,
+          };
+        } else {
+          console.error(`❌ [RESEND DELIVERY FAILED] Could not send to ${targetEmail} (Status ${res.statusCode || 'ERR'}):`, res.error);
+          return {
+            success: false,
+            provider: 'resend',
+            error: res.error,
+            target: targetEmail,
+            sender: fromAddress,
+          };
+        }
+      } catch (err: any) {
+        console.error(`❌ [RESEND HTTPS ERROR] Target: ${targetEmail}:`, err.message);
+        return {
+          success: false,
+          provider: 'resend',
+          error: err.message,
+          target: targetEmail,
+          sender: fromAddress,
+        };
+      }
+    }
+
+    // =============================================================
+    // FALLBACK PATH: Direct Gmail SMTP (Only when RESEND_API_KEY is unset)
+    // =============================================================
+    const user = emailCfg.user;
     if (!user || !emailCfg.password) {
-      console.warn(`⚠️ [EMAIL SKIPPED] No EMAIL_USER/EMAIL_PASSWORD configured. Simulated delivery to: ${targetEmail}`);
-      return { success: false, error: 'EMAIL_USER and EMAIL_PASSWORD not configured', target: targetEmail };
+      console.warn(`⚠️ [EMAIL SKIPPED] Neither RESEND_API_KEY nor EMAIL_USER/EMAIL_PASSWORD configured. Simulated delivery to: ${targetEmail}`);
+      return { success: false, error: 'No email service credentials configured in environment', target: targetEmail };
     }
 
     const fromAddress = `"Zylo Commerce" <${user}>`;
@@ -259,6 +418,7 @@ class EmailService {
 
         return {
           success: true,
+          provider: 'smtp',
           messageId: info.messageId,
           response: info.response,
           envelope: info.envelope,
@@ -272,6 +432,7 @@ class EmailService {
         }
         return {
           success: false,
+          provider: 'smtp',
           error: error.message,
           target: targetEmail,
           sender: user,
