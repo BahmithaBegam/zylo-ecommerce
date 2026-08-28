@@ -169,11 +169,11 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950 flex flex-col justify-between space-y-12 sm:space-y-16 pt-0">
+    <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950 flex flex-col justify-between space-y-8 sm:space-y-16 pt-0 w-full max-w-full overflow-x-hidden">
       
       {/* 1. HERO SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 w-full">
-        <div className="relative rounded-3xl overflow-hidden bg-zinc-950 text-white min-h-[440px] sm:min-h-[500px] flex items-center shadow-xl">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 w-full">
+        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-zinc-950 text-white min-h-[380px] sm:min-h-[500px] flex items-center shadow-xl w-full">
           {/* Background image overlay with soft gradient */}
           <div className="absolute inset-0 z-0">
             <img
@@ -186,48 +186,48 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* Hero Content */}
-          <div className="relative z-10 p-6 sm:p-12 lg:p-16 max-w-2xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-300 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <div className="relative z-10 p-4 sm:p-12 lg:p-16 max-w-2xl space-y-4 sm:space-y-6 w-full">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
               <span>Zylo New Season Drop</span>
             </div>
 
-            <div className="space-y-3">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.08]">
+            <div className="space-y-2 sm:space-y-3">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] break-words">
                 FIND YOUR NEXT <br />
                 <span className="bg-gradient-to-r from-indigo-300 via-rose-300 to-amber-200 bg-clip-text text-transparent">
                   FAVORITE.
                 </span>
               </h1>
-              <p className="text-sm sm:text-base text-zinc-300 font-normal leading-relaxed max-w-lg">
+              <p className="text-xs sm:text-base text-zinc-300 font-normal leading-relaxed max-w-lg">
                 Fashion, beauty, tech and everyday essentials — all in one place. Authentic brands, express doorstep delivery, and prices that make sense.
               </p>
             </div>
 
-            <div className="flex items-center gap-3.5 pt-2 flex-wrap">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 pt-1 sm:pt-2 flex-wrap">
               <Link
                 to="/shop"
-                className="px-6 py-3.5 rounded-2xl bg-white text-zinc-950 hover:bg-zinc-100 text-sm font-extrabold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 flex items-center gap-2 group"
+                className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white text-zinc-950 hover:bg-zinc-100 text-xs sm:text-sm font-extrabold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 flex items-center gap-2 group"
               >
                 <span>Shop Now</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/shop?sort=bestselling"
-                className="px-6 py-3.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white text-sm font-extrabold backdrop-blur-md border border-white/20 transition-all duration-200 active:scale-95 flex items-center gap-2"
+                className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-extrabold backdrop-blur-md border border-white/20 transition-all duration-200 active:scale-95 flex items-center gap-2"
               >
                 <span>Explore Trends</span>
               </Link>
             </div>
 
             {/* Quick Guarantees Pill */}
-            <div className="pt-4 flex items-center gap-4 text-[11px] text-zinc-300 font-medium">
+            <div className="pt-2 sm:pt-4 flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] text-zinc-300 font-medium">
               <span className="flex items-center gap-1">
-                <Truck className="w-3.5 h-3.5 text-emerald-400" /> Free Shipping above ₹999
+                <Truck className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Free Shipping above ₹999
               </span>
-              <span>•</span>
+              <span className="hidden xs:inline">•</span>
               <span className="flex items-center gap-1">
-                <RotateCcw className="w-3.5 h-3.5 text-amber-400" /> 7-Day Doorstep Returns
+                <RotateCcw className="w-3.5 h-3.5 text-amber-400 shrink-0" /> 7-Day Doorstep Returns
               </span>
             </div>
           </div>
@@ -235,13 +235,13 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 2. CATEGORY EXPERIENCE */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-end justify-between mb-6">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+        <div className="flex items-end justify-between mb-4 sm:mb-6">
           <div>
-            <span className="text-xs font-black tracking-wider uppercase text-indigo-600 dark:text-indigo-400">
+            <span className="text-[10px] sm:text-xs font-black tracking-wider uppercase text-indigo-600 dark:text-indigo-400">
               EXPLORE BY DEPARTMENT
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-0.5">
+            <h2 className="text-xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-0.5">
               Shop By Categories
             </h2>
           </div>
@@ -254,7 +254,7 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {categoriesList.map(cat => (
             <CategoryCard
               key={cat.name}
@@ -269,15 +269,15 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 3. TRENDING SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-end justify-between mb-6">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+        <div className="flex items-end justify-between mb-4 sm:mb-6">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-black text-[10px] uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-black text-[9px] sm:text-[10px] uppercase tracking-wider">
                 HOT RIGHT NOW
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-1">
+            <h2 className="text-xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-1">
               Trending Right Now
             </h2>
           </div>
@@ -290,7 +290,7 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
           {trendingProducts.map(product => (
             <ProductCard key={product._id} product={product} />
           ))}
@@ -298,28 +298,28 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 4. WOMEN'S FASHION SPOTLIGHT */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="rounded-3xl overflow-hidden bg-gradient-to-r from-purple-950 via-purple-900 to-indigo-950 text-white p-6 sm:p-10 lg:p-12 shadow-xl relative">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+        <div className="rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-r from-purple-950 via-purple-900 to-indigo-950 text-white p-4 sm:p-10 lg:p-12 shadow-xl relative w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
             
             {/* Editorial Text Left */}
-            <div className="lg:col-span-5 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-400/20 text-pink-300 text-xs font-black uppercase tracking-wider border border-pink-400/30">
-                <Sparkles className="w-3.5 h-3.5" />
+            <div className="lg:col-span-5 space-y-4 sm:space-y-5">
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-pink-400/20 text-pink-300 text-[10px] sm:text-xs font-black uppercase tracking-wider border border-pink-400/30">
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Curated Wardrobe</span>
               </div>
-              <div className="space-y-2">
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+              <div className="space-y-1.5 sm:space-y-2">
+                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
                   WOMEN'S <br />
                   <span className="text-pink-300">COLLECTION.</span>
                 </h2>
-                <p className="text-sm text-purple-200 font-medium leading-relaxed">
+                <p className="text-xs sm:text-sm text-purple-200 font-medium leading-relaxed">
                   Everyday elegance to festive grandeur. Explore handcrafted Anarkalis, pure silk drapes, modern tiered dresses, and relaxed linen co-ord sets.
                 </p>
               </div>
 
               {/* Sub-category Pill Tags */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
                 {[
                   { name: 'Kurtas & Suits', sub: 'Kurtis & Suits' },
                   { name: 'Sarees', sub: 'Sarees' },
@@ -331,26 +331,26 @@ export const HomePage: React.FC = () => {
                   <Link
                     key={tag.name}
                     to={`/shop?category=Women&subcategory=${encodeURIComponent(tag.sub)}`}
-                    className="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-purple-100 text-xs font-semibold backdrop-blur-xs transition-colors"
+                    className="px-2.5 sm:px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-purple-100 text-[11px] sm:text-xs font-semibold backdrop-blur-xs transition-colors"
                   >
                     {tag.name}
                   </Link>
                 ))}
               </div>
 
-              <div className="pt-2">
+              <div className="pt-1 sm:pt-2">
                 <Link
                   to="/shop?category=Women"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-400 hover:to-rose-300 text-white text-sm font-black shadow-lg transition-all active:scale-95"
+                  className="inline-flex items-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-400 hover:to-rose-300 text-white text-xs sm:text-sm font-black shadow-lg transition-all active:scale-95"
                 >
                   <span>Explore Women's Fashion</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </Link>
               </div>
             </div>
 
             {/* Women Showcase Grid Right */}
-            <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
               {womenProducts.slice(0, 3).map(product => (
                 <div key={product._id} className="bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-md">
                   <ProductCard product={product} />
@@ -363,29 +363,29 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 5. GEN-Z FASHION SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-end justify-between mb-6">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+        <div className="flex items-end justify-between mb-4 sm:mb-6">
           <div>
-            <span className="text-xs font-black tracking-wider uppercase text-pink-600 dark:text-pink-400">
+            <span className="text-[10px] sm:text-xs font-black tracking-wider uppercase text-pink-600 dark:text-pink-400">
               CURATED VIBES
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-0.5">
+            <h2 className="text-xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-0.5">
               Style It Your Way
             </h2>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+            <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1">
               Trending outfits, streetwear, oversized tees, co-ords, and everyday drip.
             </p>
           </div>
           <Link
             to="/shop?category=Women"
-            className="text-xs font-bold text-pink-600 dark:text-pink-400 hover:text-pink-700 flex items-center gap-1 group"
+            className="text-xs font-bold text-pink-600 dark:text-pink-400 hover:text-pink-700 flex items-center gap-1 group shrink-0"
           >
             <span>Explore Fashion</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
           {genZFashion.map(product => (
             <ProductCard key={product._id} product={product} />
           ))}
@@ -393,20 +393,20 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 6. KIDS & TOYS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-end justify-between mb-6">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+        <div className="flex items-end justify-between mb-4 sm:mb-6">
           <div>
-            <span className="text-xs font-black tracking-wider uppercase text-amber-600 dark:text-amber-400">
+            <span className="text-[10px] sm:text-xs font-black tracking-wider uppercase text-amber-600 dark:text-amber-400">
               LITTLE ONES & PLAY
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-0.5">
+            <h2 className="text-xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-0.5">
               For Little Explorers
             </h2>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+            <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1">
               Kids dresses, boys & girls clothing, baby essentials, educational toys, and STEM games.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <Link
               to="/kids"
               className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 flex items-center gap-1"
@@ -423,7 +423,7 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
           {kidsProducts.map(product => (
             <ProductCard key={product._id} product={product} />
           ))}
@@ -431,38 +431,38 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 7. DEALS SECTION WITH COUNTDOWN TIMER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="bg-gradient-to-b from-rose-50/70 dark:from-zinc-900 to-white dark:to-zinc-950 rounded-3xl border border-rose-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-sm space-y-6">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+        <div className="bg-gradient-to-b from-rose-50/70 dark:from-zinc-900 to-white dark:to-zinc-950 rounded-2xl sm:rounded-3xl border border-rose-200/80 dark:border-zinc-800 p-4 sm:p-8 shadow-sm space-y-4 sm:space-y-6 w-full">
           
           {/* Deals Header with Countdown Timer */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-rose-100 dark:border-zinc-800">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pb-4 border-b border-rose-100 dark:border-zinc-800 w-full">
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-rose-600 text-white font-black text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-xs">
+                <span className="px-2.5 py-0.5 rounded-full bg-rose-600 text-white font-black text-[9px] sm:text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-xs">
                   <Flame className="w-3.5 h-3.5 fill-white" /> FLASH SALE
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-1">
+              <h2 className="text-xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-1">
                 Deals You Don't Want To Miss
               </h2>
             </div>
 
             {/* Countdown Box */}
-            <div className="flex items-center gap-2 bg-zinc-950 dark:bg-zinc-900 text-white px-4 py-2.5 rounded-2xl shadow-md border border-zinc-800">
-              <Clock className="w-4 h-4 text-rose-400 shrink-0" />
-              <div className="text-xs font-bold uppercase tracking-wider text-zinc-400 mr-1">
+            <div className="flex items-center gap-2 bg-zinc-950 dark:bg-zinc-900 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl shadow-md border border-zinc-800 shrink-0">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400 shrink-0" />
+              <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 mr-0.5 sm:mr-1">
                 Ends In:
               </div>
-              <div className="flex items-center gap-1 font-mono font-black text-sm">
-                <span className="bg-zinc-800 dark:bg-zinc-800 px-2 py-0.5 rounded-md text-amber-300">
+              <div className="flex items-center gap-1 font-mono font-black text-xs sm:text-sm">
+                <span className="bg-zinc-800 dark:bg-zinc-800 px-1.5 sm:px-2 py-0.5 rounded-md text-amber-300">
                   {String(timeLeft.hours).padStart(2, '0')}
                 </span>
                 <span>:</span>
-                <span className="bg-zinc-800 dark:bg-zinc-800 px-2 py-0.5 rounded-md text-amber-300">
+                <span className="bg-zinc-800 dark:bg-zinc-800 px-1.5 sm:px-2 py-0.5 rounded-md text-amber-300">
                   {String(timeLeft.minutes).padStart(2, '0')}
                 </span>
                 <span>:</span>
-                <span className="bg-zinc-800 dark:bg-zinc-800 px-2 py-0.5 rounded-md text-rose-400">
+                <span className="bg-zinc-800 dark:bg-zinc-800 px-1.5 sm:px-2 py-0.5 rounded-md text-rose-400">
                   {String(timeLeft.seconds).padStart(2, '0')}
                 </span>
               </div>
@@ -470,7 +470,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* Deal Filters Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 no-scrollbar w-full min-w-0">
             {[
               { id: 'flash', label: '⚡ Flash Sale' },
               { id: 'under499', label: 'Under ₹499' },
@@ -481,7 +481,7 @@ export const HomePage: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setSelectedDealTab(tab.id as any)}
-                className={`px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 ${
                   selectedDealTab === tab.id
                     ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20'
                     : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-rose-50 dark:hover:bg-zinc-700 border border-zinc-200/80 dark:border-zinc-700'
@@ -493,7 +493,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* Deals Products Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
             {dealProducts.map(product => (
               <ProductCard key={product._id} product={product} />
             ))}
