@@ -209,25 +209,25 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent transition-opacity" />
 
         {badge && (
-          <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-white/95 text-zinc-900 text-[10px] font-black uppercase tracking-wider backdrop-blur-xs shadow-sm">
+          <span className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 px-1.5 sm:px-2 py-0.5 rounded-md bg-white/95 text-zinc-900 text-[9px] sm:text-[10px] font-black uppercase tracking-wider backdrop-blur-xs shadow-sm">
             {badge}
           </span>
         )}
 
-        <div className="absolute bottom-3 left-3 right-3 text-white flex items-end justify-between">
-          <div>
-            <h3 className="font-extrabold text-sm sm:text-base leading-tight drop-shadow-xs group-hover:text-indigo-200 transition-colors">
+        <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-3 sm:left-3 sm:right-3 text-white flex items-end justify-between gap-1">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-extrabold text-xs sm:text-base leading-tight drop-shadow-xs group-hover:text-indigo-200 transition-colors line-clamp-1">
               {name}
             </h3>
-            {subtitle && <p className="text-[11px] text-zinc-300 font-medium mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-[10px] sm:text-[11px] text-zinc-300 font-medium mt-0.5 line-clamp-1">{subtitle}</p>}
             {itemCount !== undefined && (
-              <p className="text-[10px] text-zinc-300 font-semibold mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-zinc-300 font-semibold mt-0.5 truncate">
                 {itemCount}+ Styles
               </p>
             )}
           </div>
-          <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0">
-            <ArrowRight className="w-3.5 h-3.5" />
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/20 backdrop-blur-md hidden xs:flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0 shrink-0">
+            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </div>
         </div>
       </div>
