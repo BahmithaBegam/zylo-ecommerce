@@ -156,14 +156,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </Link>
 
         {/* Card Content Information */}
-        <div className="p-3.5 flex-1 flex flex-col justify-between space-y-2.5">
-          <Link to={`/product/${product._id}`} className="space-y-1 block">
+        <div className="p-2.5 sm:p-3.5 flex-1 flex flex-col justify-between space-y-2 sm:space-y-2.5 min-w-0">
+          <Link to={`/product/${product._id}`} className="space-y-1 block min-w-0">
             {/* Brand & Category micro row */}
-            <div className="flex items-center justify-between text-[10px] font-bold tracking-wider uppercase">
-              <span className="text-zinc-400 dark:text-zinc-500 truncate max-w-[120px]">
+            <div className="flex items-center justify-between text-[10px] font-bold tracking-wider uppercase min-w-0 gap-1">
+              <span className="text-zinc-400 dark:text-zinc-500 truncate min-w-0 flex-1">
                 {product.brand || 'Zylo'}
               </span>
-              <span className="text-indigo-600 dark:text-indigo-400 truncate max-w-[90px]">
+              <span className="text-indigo-600 dark:text-indigo-400 truncate min-w-0 shrink-0 text-right">
                 {product.fabric || product.category}
               </span>
             </div>
@@ -175,31 +175,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
             {/* Rating Stars & Score */}
             <div className="flex items-center gap-1.5 pt-0.5">
-              <div className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black text-[10px] px-1.5 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">
+              <div className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">
                 <span>{product.rating ? product.rating.toFixed(1) : '4.5'}</span>
                 <Star className="w-2.5 h-2.5 fill-emerald-600 dark:fill-emerald-400 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">
+              <span className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">
                 ({product.reviewCount || 42})
               </span>
             </div>
           </Link>
 
           {/* Pricing & Add to Cart Action */}
-          <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
-            <div className="flex flex-col">
-              <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="text-sm sm:text-base font-black text-zinc-950 dark:text-white tracking-tight">
+          <div className="pt-1.5 sm:pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-1.5 min-w-0">
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-baseline gap-1 flex-wrap">
+                <span className="text-xs sm:text-base font-black text-zinc-950 dark:text-white tracking-tight">
                   {formatINR(product.price)}
                 </span>
                 {product.originalPrice > product.price && (
-                  <span className="text-[11px] text-zinc-400 dark:text-zinc-500 line-through font-medium">
+                  <span className="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-500 line-through font-medium">
                     {formatINR(product.originalPrice)}
                   </span>
                 )}
               </div>
               {calculatedDiscount > 0 && (
-                <div className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-tight">
+                <div className="text-[9px] sm:text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-tight">
                   {calculatedDiscount}% OFF
                 </div>
               )}
@@ -211,7 +211,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               disabled={product.stock === 0 || isAdding}
               aria-label="Add to cart"
               type="button"
-              className={`h-8 px-2.5 sm:px-3 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition-all active:scale-95 shadow-xs disabled:opacity-40 disabled:pointer-events-none ${
+              className={`h-7 sm:h-8 px-2 sm:px-3 rounded-lg sm:rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition-all active:scale-95 shadow-xs disabled:opacity-40 disabled:pointer-events-none shrink-0 ${
                 isAdding
                   ? 'bg-emerald-600 text-white'
                   : 'bg-zinc-950 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-500 text-white'
@@ -232,11 +232,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           {/* Free Delivery & Policy Micro strip */}
-          <div className="flex items-center justify-between text-[9px] text-zinc-500 dark:text-zinc-400 font-medium pt-0.5">
-            <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">
-              <Zap className="w-2.5 h-2.5 fill-emerald-600 dark:fill-emerald-400" /> Free Delivery
+          <div className="flex items-center justify-between text-[8px] sm:text-[9px] text-zinc-500 dark:text-zinc-400 font-medium pt-0.5 min-w-0 gap-1">
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5 truncate">
+              <Zap className="w-2.5 h-2.5 fill-emerald-600 dark:fill-emerald-400 shrink-0" /> Free Delivery
             </span>
-            <span className="text-zinc-400 dark:text-zinc-500">7-Day Returns</span>
+            <span className="text-zinc-400 dark:text-zinc-500 shrink-0">7-Day Returns</span>
           </div>
         </div>
       </div>
