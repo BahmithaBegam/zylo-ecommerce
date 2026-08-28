@@ -58,15 +58,15 @@ export const OrderConfirmationPage: React.FC = () => {
       </div>
 
       {/* Order Reference Box */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-zinc-200/90 shadow-sm text-left space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-zinc-100 gap-2">
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-zinc-200/90 dark:border-zinc-800 shadow-sm text-left space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800 gap-2">
           <div>
-            <span className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider">Order Reference</span>
-            <div className="text-base font-mono font-black text-zinc-900">{orderNum}</div>
+            <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider">Order Reference</span>
+            <div className="text-base font-mono font-black text-zinc-900 dark:text-white">{orderNum}</div>
           </div>
           <div className="sm:text-right">
-            <span className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider">Estimated Delivery</span>
-            <div className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 mt-0.5">
+            <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider">Estimated Delivery</span>
+            <div className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800 mt-0.5">
               🚚 By Tomorrow, 5:00 PM
             </div>
           </div>
@@ -74,24 +74,24 @@ export const OrderConfirmationPage: React.FC = () => {
 
         {order?.items && (
           <div className="space-y-3">
-            <h4 className="text-xs font-black uppercase tracking-wider text-zinc-400">Purchased Items</h4>
-            <div className="divide-y divide-zinc-100">
+            <h4 className="text-xs font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Purchased Items</h4>
+            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {order.items.map((item, idx) => (
                 <div key={idx} className="py-3 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-3">
                     <img
                       src={item.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=120'}
                       alt={item.name}
-                      className="w-12 h-12 rounded-xl object-cover bg-zinc-100 border border-zinc-200"
+                      className="w-12 h-12 rounded-xl object-cover bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
                     />
                     <div>
-                      <div className="font-bold text-zinc-900 line-clamp-1">{item.name}</div>
-                      <div className="text-zinc-500 text-[11px]">
+                      <div className="font-bold text-zinc-900 dark:text-white line-clamp-1">{item.name}</div>
+                      <div className="text-zinc-500 dark:text-zinc-400 text-[11px]">
                         Qty: {item.quantity} {item.selectedSize ? `• ${item.selectedSize}` : ''}
                       </div>
                     </div>
                   </div>
-                  <span className="font-black text-zinc-900 font-mono">
+                  <span className="font-black text-zinc-900 dark:text-white font-mono">
                     {formatINR(item.price * item.quantity)}
                   </span>
                 </div>
@@ -102,23 +102,23 @@ export const OrderConfirmationPage: React.FC = () => {
 
         {/* Pricing Summary */}
         {order && (
-          <div className="pt-4 border-t border-zinc-100 space-y-1.5 text-xs">
-            <div className="flex justify-between text-zinc-600">
+          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-1.5 text-xs">
+            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>Total Paid Amount</span>
-              <span className="font-black text-zinc-900 text-sm">{formatINR(order.totalAmount || order.total)}</span>
+              <span className="font-black text-zinc-900 dark:text-white text-sm">{formatINR(order.totalAmount || order.total)}</span>
             </div>
-            <div className="flex justify-between text-zinc-500 text-[11px]">
+            <div className="flex justify-between text-zinc-500 dark:text-zinc-400 text-[11px]">
               <span>Payment Mode</span>
-              <span className="font-bold uppercase text-zinc-700">{order.paymentMethod}</span>
+              <span className="font-bold uppercase text-zinc-700 dark:text-zinc-300">{order.paymentMethod}</span>
             </div>
           </div>
         )}
 
         {order?.shippingAddress && (
-          <div className="pt-4 border-t border-zinc-100 flex items-start gap-3 text-xs text-zinc-600">
-            <MapPin className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-start gap-3 text-xs text-zinc-600 dark:text-zinc-400">
+            <MapPin className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-zinc-900 block">Shipping Destination:</span>
+              <span className="font-bold text-zinc-900 dark:text-white block">Shipping Destination:</span>
               <span>
                 {order.shippingAddress.fullName} — {order.shippingAddress.addressLine1},{' '}
                 {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}
@@ -138,7 +138,7 @@ export const OrderConfirmationPage: React.FC = () => {
         </Link>
         <Link
           to="/shop"
-          className="w-full sm:w-auto px-8 py-3.5 bg-zinc-950 hover:bg-zinc-900 text-white font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-8 py-3.5 bg-zinc-950 hover:bg-zinc-900 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-2"
         >
           Continue Shopping <ArrowRight className="w-4 h-4" />
         </Link>
