@@ -43,9 +43,9 @@ import { AdminReviews } from './pages/admin/AdminReviews.js';
 
 const StorefrontLayout: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-50/50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-indigo-500 selection:text-white font-sans antialiased">
+    <div className="min-h-screen flex flex-col bg-zinc-50/50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-indigo-500 selection:text-white font-sans antialiased overflow-x-hidden w-full max-w-full relative">
       <Navbar />
-      <main className="flex-1 pb-16 md:pb-0">
+      <main className="flex-1 pb-16 md:pb-0 w-full max-w-full overflow-x-hidden">
         <Outlet />
       </main>
       <MobileBottomNav />
