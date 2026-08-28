@@ -32,8 +32,8 @@ export const MobileBottomNav: React.FC = () => {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-t border-zinc-200/90 dark:border-zinc-800 shadow-lg px-2 py-1 safe-area-bottom">
-      <nav className="flex items-center justify-around">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-t border-zinc-200/90 dark:border-zinc-800 shadow-lg px-1 py-1 safe-area-bottom w-full max-w-full">
+      <nav className="flex items-center justify-around w-full">
         {navItems.map(item => {
           const Icon = item.icon;
           return (
@@ -42,7 +42,7 @@ export const MobileBottomNav: React.FC = () => {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center min-w-[60px] py-1 px-1 rounded-xl transition-all relative ${
+                `flex flex-col items-center justify-center flex-1 py-1 px-0.5 rounded-xl transition-all relative ${
                   isActive
                     ? 'text-indigo-600 dark:text-indigo-400 font-bold'
                     : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium'
