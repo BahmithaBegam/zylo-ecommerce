@@ -237,48 +237,50 @@ export const CheckoutPage: React.FC = () => {
       {/* 3-Step Visual Progress Stepper */}
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between relative">
-          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-0.5 bg-zinc-200 -z-0" />
+          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-0.5 bg-zinc-200 dark:bg-zinc-800 -z-0" />
           
           {/* Step 1: Bag */}
           <Link to="/cart" className="relative z-10 flex flex-col items-center gap-1.5 group">
             <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-black shadow-md">
               <Check className="w-4 h-4" />
             </div>
-            <span className="text-[11px] font-bold text-zinc-900">1. Bag</span>
+            <span className="text-[11px] font-bold text-zinc-900 dark:text-zinc-200">1. Bag</span>
           </Link>
 
           {/* Step 2: Address */}
           <button
+            type="button"
             onClick={() => setCurrentStep(2)}
             className="relative z-10 flex flex-col items-center gap-1.5"
           >
             <div
               className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black shadow-md transition-all ${
                 currentStep === 2
-                  ? 'bg-zinc-950 text-white ring-4 ring-zinc-200'
+                  ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-900 ring-4 ring-zinc-200 dark:ring-zinc-800'
                   : 'bg-emerald-600 text-white'
               }`}
             >
               2
             </div>
-            <span className="text-[11px] font-bold text-zinc-900">2. Address</span>
+            <span className="text-[11px] font-bold text-zinc-900 dark:text-zinc-200">2. Address</span>
           </button>
 
           {/* Step 3: Payment */}
           <button
+            type="button"
             onClick={() => setCurrentStep(3)}
             className="relative z-10 flex flex-col items-center gap-1.5"
           >
             <div
               className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black shadow-md transition-all ${
                 currentStep === 3
-                  ? 'bg-indigo-600 text-white ring-4 ring-indigo-100'
-                  : 'bg-white border-2 border-zinc-300 text-zinc-400'
+                  ? 'bg-indigo-600 text-white ring-4 ring-indigo-100 dark:ring-indigo-950'
+                  : 'bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-700 text-zinc-400 dark:text-zinc-500'
               }`}
             >
               3
             </div>
-            <span className="text-[11px] font-bold text-zinc-600">3. Payment</span>
+            <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400">3. Payment</span>
           </button>
         </div>
       </div>
@@ -289,23 +291,23 @@ export const CheckoutPage: React.FC = () => {
         <div className="lg:col-span-7 space-y-6">
           
           {/* Customer Account & Notification Email Card */}
-          <div className="bg-white rounded-3xl border border-zinc-200/90 p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
-              <h2 className="text-base font-black text-zinc-900 flex items-center gap-2">
-                <Mail className="w-5 h-5 text-indigo-600" /> Customer Account & Order Receipt
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
+              <h2 className="text-base font-black text-zinc-900 dark:text-white flex items-center gap-2">
+                <Mail className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Customer Account & Order Receipt
               </h2>
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-900">
                 <CheckCircle2 className="w-3 h-3" /> Auto-populated
               </span>
             </div>
 
             {isDemoOrInvalidEmail ? (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl space-y-3">
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-2xl space-y-3">
                 <div className="flex items-start gap-2.5">
-                  <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-amber-900">Valid Email Required for Order Confirmation</h4>
-                    <p className="text-[11px] text-amber-700 mt-0.5">
+                    <h4 className="text-xs font-bold text-amber-900 dark:text-amber-300">Valid Email Required for Order Confirmation</h4>
+                    <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-0.5">
                       Your account currently has a placeholder email ({user?.email || 'none'}). Please provide your active email to receive invoice receipts and live BlueDart tracking updates.
                     </p>
                   </div>
@@ -318,34 +320,34 @@ export const CheckoutPage: React.FC = () => {
                     value={emailInput}
                     onChange={e => setEmailInput(e.target.value)}
                     placeholder="Enter your personal email (e.g. name@gmail.com)"
-                    className="flex-1 bg-white border border-amber-300 rounded-xl px-3.5 py-2 text-xs text-zinc-900 outline-none focus:border-indigo-600"
+                    className="flex-1 bg-white dark:bg-zinc-800 border border-amber-300 dark:border-amber-700 rounded-xl px-3.5 py-2 text-xs text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                   <button
                     type="button"
                     onClick={handleUpdateEmail}
                     disabled={isUpdatingEmail || !emailInput}
-                    className="py-2 px-4 bg-zinc-900 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    className="py-2 px-4 bg-zinc-900 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
                     {isUpdatingEmail ? 'Updating...' : 'Save & Link Email'}
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-200/80 flex items-center justify-between">
+              <div className="p-4 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-200/80 dark:border-zinc-700 flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="text-xs font-black text-zinc-900">{user?.name}</div>
-                  <div className="text-xs font-mono text-indigo-700 font-bold flex items-center gap-1.5">
+                  <div className="text-xs font-black text-zinc-900 dark:text-white">{user?.name}</div>
+                  <div className="text-xs font-mono text-indigo-700 dark:text-indigo-400 font-bold flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-indigo-500" />
                     {user?.email}
                   </div>
-                  <p className="text-[10px] text-zinc-500 pt-0.5">
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 pt-0.5">
                     Order confirmation and tracking links will be automatically sent to this address.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setEmailInput(user?.email || '')}
-                  className="text-xs text-zinc-400 hover:text-indigo-600 p-2 transition-colors"
+                  className="text-xs text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-2 transition-colors"
                   title="Change delivery email"
                 >
                   <Edit3 className="w-4 h-4" />
@@ -354,13 +356,13 @@ export const CheckoutPage: React.FC = () => {
             )}
 
             {emailInput && !isDemoOrInvalidEmail && (
-              <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl flex gap-2">
+              <div className="p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl flex gap-2">
                 <input
                   type="email"
                   value={emailInput}
                   onChange={e => setEmailInput(e.target.value)}
                   placeholder="Update email address"
-                  className="flex-1 bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs"
+                  className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-zinc-900 dark:text-white"
                 />
                 <button
                   type="button"
@@ -372,7 +374,7 @@ export const CheckoutPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setEmailInput('')}
-                  className="px-2 py-1.5 text-zinc-400 text-xs hover:text-zinc-600"
+                  className="px-2 py-1.5 text-zinc-400 text-xs hover:text-zinc-600 dark:hover:text-zinc-300"
                 >
                   Cancel
                 </button>
@@ -381,16 +383,16 @@ export const CheckoutPage: React.FC = () => {
           </div>
 
           {/* STEP 2: Address Section */}
-          <div className="bg-white rounded-3xl border border-zinc-200/90 p-6 shadow-xs space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
-              <h2 className="text-base font-black text-zinc-900 flex items-center gap-2">
-                <Truck className="w-5 h-5 text-indigo-600" /> Delivery Address
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 p-6 shadow-xs space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
+              <h2 className="text-base font-black text-zinc-900 dark:text-white flex items-center gap-2">
+                <Truck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Delivery Address
               </h2>
               {user?.addresses && user.addresses.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setIsAddingNewAddress(!isAddingNewAddress)}
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   {isAddingNewAddress ? 'Use Saved Address' : 'Add New Address'}
@@ -406,8 +408,8 @@ export const CheckoutPage: React.FC = () => {
                     key={addr.id}
                     className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between space-y-2 ${
                       selectedAddressId === addr.id
-                        ? 'border-indigo-600 bg-indigo-50/40 shadow-xs'
-                        : 'border-zinc-200 hover:border-zinc-300 bg-zinc-50/50'
+                        ? 'border-indigo-600 bg-indigo-50/40 dark:bg-indigo-950/40 shadow-xs'
+                        : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/40'
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -419,17 +421,17 @@ export const CheckoutPage: React.FC = () => {
                         className="mt-0.5 text-indigo-600 focus:ring-indigo-500"
                       />
                       {addr.isDefault && (
-                        <span className="text-[9px] font-black uppercase tracking-wider bg-zinc-900 text-white px-2 py-0.5 rounded">
+                        <span className="text-[9px] font-black uppercase tracking-wider bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded">
                           Default
                         </span>
                       )}
                     </div>
                     <div>
-                      <h4 className="text-xs font-extrabold text-zinc-900">{addr.fullName}</h4>
-                      <p className="text-[11px] text-zinc-600 mt-0.5 line-clamp-2">
+                      <h4 className="text-xs font-extrabold text-zinc-900 dark:text-white">{addr.fullName}</h4>
+                      <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 line-clamp-2">
                         {addr.addressLine1}, {addr.addressLine2 ? `${addr.addressLine2}, ` : ''}{addr.city}, {addr.state} - {addr.postalCode}
                       </p>
-                      <p className="text-[11px] text-zinc-500 font-mono mt-1">📞 +91 {addr.phone}</p>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono mt-1">📞 +91 {addr.phone}</p>
                     </div>
                   </label>
                 ))}
@@ -438,19 +440,19 @@ export const CheckoutPage: React.FC = () => {
               /* New Indian Address Form */
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">Full Name *</label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Full Name *</label>
                   <input
                     type="text"
                     required
                     value={newAddress.fullName}
                     onChange={e => setNewAddress({ ...newAddress, fullName: e.target.value })}
                     placeholder="e.g. Aarav Sharma"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-600"
+                    className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">Mobile Number (10 digits) *</label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Mobile Number (10 digits) *</label>
                   <input
                     type="tel"
                     required
@@ -458,12 +460,12 @@ export const CheckoutPage: React.FC = () => {
                     value={newAddress.phone}
                     onChange={e => setNewAddress({ ...newAddress, phone: e.target.value.replace(/\D/g, '') })}
                     placeholder="9876543210"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs font-mono outline-none focus:border-indigo-600"
+                    className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">Pincode (6 digits) *</label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Pincode (6 digits) *</label>
                   <input
                     type="text"
                     required
@@ -471,54 +473,54 @@ export const CheckoutPage: React.FC = () => {
                     value={newAddress.postalCode}
                     onChange={e => setNewAddress({ ...newAddress, postalCode: e.target.value.replace(/\D/g, '') })}
                     placeholder="560038"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs font-mono outline-none focus:border-indigo-600"
+                    className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">Flat, House no., Building, Apartment *</label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Flat, House no., Building, Apartment *</label>
                   <input
                     type="text"
                     required
                     value={newAddress.addressLine1}
                     onChange={e => setNewAddress({ ...newAddress, addressLine1: e.target.value })}
                     placeholder="e.g. Flat 402, Royal Palms Residency"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-600"
+                    className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">Area, Street, Sector, Village (Optional)</label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Area, Street, Sector, Village (Optional)</label>
                   <input
                     type="text"
                     value={newAddress.addressLine2}
                     onChange={e => setNewAddress({ ...newAddress, addressLine2: e.target.value })}
                     placeholder="e.g. MG Road, Indiranagar"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-600"
+                    className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">Town / City *</label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Town / City *</label>
                   <input
                     type="text"
                     required
                     value={newAddress.city}
                     onChange={e => setNewAddress({ ...newAddress, city: e.target.value })}
                     placeholder="Bengaluru"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-600"
+                    className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">State *</label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">State *</label>
                   <input
                     type="text"
                     required
                     value={newAddress.state}
                     onChange={e => setNewAddress({ ...newAddress, state: e.target.value })}
                     placeholder="Karnataka"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-600"
+                    className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
               </div>
@@ -526,12 +528,12 @@ export const CheckoutPage: React.FC = () => {
           </div>
 
           {/* STEP 3: Payment Options Section */}
-          <div className="bg-white rounded-3xl border border-zinc-200/90 p-6 shadow-xs space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
-              <h2 className="text-base font-black text-zinc-900 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" /> Payment Options
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 p-6 shadow-xs space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
+              <h2 className="text-base font-black text-zinc-900 dark:text-white flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Payment Options
               </h2>
-              <span className="text-[11px] font-bold text-zinc-400">100% Encrypted & Safe</span>
+              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500">100% Encrypted & Safe</span>
             </div>
 
             {/* Payment Method Selector Tabs */}
@@ -550,11 +552,11 @@ export const CheckoutPage: React.FC = () => {
                     onClick={() => setPaymentMethod(m.id as any)}
                     className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-1.5 transition-all ${
                       paymentMethod === m.id
-                        ? 'border-indigo-600 bg-indigo-50/50 text-indigo-950 font-black shadow-xs'
-                        : 'border-zinc-200 hover:border-zinc-300 text-zinc-600'
+                        ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 text-indigo-950 dark:text-indigo-200 font-black shadow-xs'
+                        : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 ${paymentMethod === m.id ? 'text-indigo-600' : 'text-zinc-400'}`} />
+                    <Icon className={`w-5 h-5 ${paymentMethod === m.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400'}`} />
                     <span className="text-xs">{m.label}</span>
                   </button>
                 );
@@ -563,8 +565,8 @@ export const CheckoutPage: React.FC = () => {
 
             {/* Payment Method Detail Inputs */}
             {paymentMethod === 'upi' && (
-              <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-200/80 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-extrabold text-zinc-900">
+              <div className="p-4 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-200/80 dark:border-zinc-700 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-extrabold text-zinc-900 dark:text-white">
                   <span>Choose your UPI App:</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -573,57 +575,57 @@ export const CheckoutPage: React.FC = () => {
                       key={app}
                       type="button"
                       onClick={() => setUpiVpa(`user@ok${app.toLowerCase().replace(/\s/g, '')}`)}
-                      className="py-2 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-bold hover:border-indigo-600 transition-colors text-center"
+                      className="py-2 px-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:border-indigo-600 dark:hover:border-indigo-400 transition-colors text-center"
                     >
                       {app}
                     </button>
                   ))}
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-zinc-500 block mb-1">Or enter UPI ID / VPA</label>
+                  <label className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 block mb-1">Or enter UPI ID / VPA</label>
                   <input
                     type="text"
                     value={upiVpa}
                     onChange={e => setUpiVpa(e.target.value)}
                     placeholder="username@okhdfcbank"
-                    className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs font-mono font-bold outline-none focus:border-indigo-600"
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
               </div>
             )}
 
             {paymentMethod === 'card' && (
-              <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-200/80 space-y-3">
+              <div className="p-4 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-200/80 dark:border-zinc-700 space-y-3">
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">Card Number</label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Card Number</label>
                   <input
                     type="text"
                     value={cardDetails.number}
                     onChange={e => setCardDetails({ ...cardDetails, number: e.target.value })}
                     placeholder="4532 •••• •••• 8821"
-                    className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs font-mono outline-none focus:border-indigo-600"
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-bold text-zinc-700 block mb-1">Valid Thru</label>
+                    <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Valid Thru</label>
                     <input
                       type="text"
                       value={cardDetails.expiry}
                       onChange={e => setCardDetails({ ...cardDetails, expiry: e.target.value })}
                       placeholder="MM/YY"
-                      className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs font-mono outline-none focus:border-indigo-600"
+                      className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-zinc-700 block mb-1">CVV</label>
+                    <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">CVV</label>
                     <input
                       type="password"
                       maxLength={4}
                       value={cardDetails.cvv}
                       onChange={e => setCardDetails({ ...cardDetails, cvv: e.target.value })}
                       placeholder="•••"
-                      className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs font-mono outline-none focus:border-indigo-600"
+                      className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono text-zinc-900 dark:text-white outline-none focus:border-indigo-600 dark:focus:border-indigo-400"
                     />
                   </div>
                 </div>
@@ -631,8 +633,8 @@ export const CheckoutPage: React.FC = () => {
             )}
 
             {paymentMethod === 'netbanking' && (
-              <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-200/80 space-y-3">
-                <label className="text-xs font-bold text-zinc-700 block mb-1">Select Bank</label>
+              <div className="p-4 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-200/80 dark:border-zinc-700 space-y-3">
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Select Bank</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {['HDFC Bank', 'State Bank of India', 'ICICI Bank', 'Axis Bank', 'Kotak Mahindra', 'Other Banks'].map(b => (
                     <button
@@ -641,8 +643,8 @@ export const CheckoutPage: React.FC = () => {
                       onClick={() => setSelectedBank(b)}
                       className={`py-2 px-3 rounded-xl text-xs font-bold transition-all text-center border ${
                         selectedBank === b
-                          ? 'bg-zinc-950 text-white border-zinc-950'
-                          : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                          ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-900 border-zinc-950 dark:border-white'
+                          : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
                       }`}
                     >
                       {b}
@@ -653,9 +655,9 @@ export const CheckoutPage: React.FC = () => {
             )}
 
             {paymentMethod === 'cod' && (
-              <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-xs space-y-1">
-                <h4 className="font-extrabold text-amber-900">Cash on Delivery Available</h4>
-                <p className="text-amber-800">
+              <div className="p-4 bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900 rounded-2xl text-xs space-y-1">
+                <h4 className="font-extrabold text-amber-900 dark:text-amber-300">Cash on Delivery Available</h4>
+                <p className="text-amber-800 dark:text-amber-400">
                   Pay with Cash, UPI, or QR code directly to the courier executive upon delivery.
                 </p>
               </div>
@@ -667,8 +669,8 @@ export const CheckoutPage: React.FC = () => {
 
         {/* Right Sticky Order Summary (5 cols) */}
         <div className="lg:col-span-5 space-y-5 sticky top-24">
-          <div className="bg-white rounded-3xl border border-zinc-200/90 p-6 shadow-md space-y-6">
-            <h3 className="text-lg font-black text-zinc-900 tracking-tight pb-3 border-b border-zinc-100">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 p-6 shadow-md space-y-6">
+            <h3 className="text-lg font-black text-zinc-900 dark:text-white tracking-tight pb-3 border-b border-zinc-100 dark:border-zinc-800">
               Order Summary ({cart.itemCount} Items)
             </h3>
 
@@ -679,15 +681,15 @@ export const CheckoutPage: React.FC = () => {
                   <img
                     src={item.image}
                     alt=""
-                    className="w-12 h-12 rounded-xl object-cover border border-zinc-200 shrink-0"
+                    className="w-12 h-12 rounded-xl object-cover border border-zinc-200 dark:border-zinc-700 shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-zinc-900 truncate">{item.name}</h4>
-                    <p className="text-[11px] text-zinc-500">
+                    <h4 className="font-bold text-zinc-900 dark:text-white truncate">{item.name}</h4>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
                       Qty: {item.quantity} {item.selectedSize ? `• ${item.selectedSize}` : ''}
                     </p>
                   </div>
-                  <span className="font-black text-zinc-950 font-mono">
+                  <span className="font-black text-zinc-950 dark:text-white font-mono">
                     {formatINR(item.price * item.quantity)}
                   </span>
                 </div>
@@ -695,41 +697,41 @@ export const CheckoutPage: React.FC = () => {
             </div>
 
             {/* Registered Customer Recipient Indicator */}
-            <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100 text-[11px] space-y-1">
-              <div className="text-zinc-500">Dispatching Confirmation to:</div>
-              <div className="font-bold text-zinc-900 flex items-center gap-1.5 font-mono">
-                <Mail className="w-3.5 h-3.5 text-indigo-600" />
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-xl border border-zinc-100 dark:border-zinc-800 text-[11px] space-y-1">
+              <div className="text-zinc-500 dark:text-zinc-400">Dispatching Confirmation to:</div>
+              <div className="font-bold text-zinc-900 dark:text-white flex items-center gap-1.5 font-mono">
+                <Mail className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 {user?.email || 'No email registered'}
               </div>
             </div>
 
             {/* Calculations Breakdown */}
-            <div className="space-y-2 text-xs pt-3 border-t border-zinc-100">
-              <div className="flex justify-between text-zinc-600">
+            <div className="space-y-2 text-xs pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
                 <span>Subtotal</span>
-                <span className="font-bold text-zinc-900">{formatINR(subtotal)}</span>
+                <span className="font-bold text-zinc-900 dark:text-white">{formatINR(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-zinc-600">
+              <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
                 <span>Shipping</span>
                 {shipping === 0 ? (
-                  <span className="font-bold text-emerald-600">FREE</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">FREE</span>
                 ) : (
-                  <span className="font-bold text-zinc-900">{formatINR(shipping)}</span>
+                  <span className="font-bold text-zinc-900 dark:text-white">{formatINR(shipping)}</span>
                 )}
               </div>
-              <div className="flex justify-between text-zinc-600">
+              <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
                 <span>Estimated GST (5%)</span>
-                <span className="font-bold text-zinc-900">{formatINR(tax)}</span>
+                <span className="font-bold text-zinc-900 dark:text-white">{formatINR(tax)}</span>
               </div>
 
               {/* Total */}
-              <div className="pt-3 border-t border-zinc-200 flex justify-between items-baseline">
-                <span className="text-base font-black text-zinc-900">Total Payable</span>
+              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-baseline">
+                <span className="text-base font-black text-zinc-900 dark:text-white">Total Payable</span>
                 <div className="text-right">
-                  <span className="text-2xl font-black text-zinc-950 tracking-tight">
+                  <span className="text-2xl font-black text-zinc-950 dark:text-white tracking-tight">
                     {formatINR(total)}
                   </span>
-                  <div className="text-[10px] text-zinc-400">All Taxes Included</div>
+                  <div className="text-[10px] text-zinc-400 dark:text-zinc-500">All Taxes Included</div>
                 </div>
               </div>
             </div>
@@ -738,7 +740,7 @@ export const CheckoutPage: React.FC = () => {
             <button
               type="submit"
               disabled={isProcessing || isDemoOrInvalidEmail}
-              className="w-full py-4 bg-zinc-950 hover:bg-indigo-600 text-white rounded-2xl text-sm font-black flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              className="w-full py-4 bg-zinc-950 hover:bg-indigo-600 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 rounded-2xl text-sm font-black flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               <Lock className="w-4 h-4" />
               <span>{isProcessing ? 'Processing Order...' : `Pay ${formatINR(total)}`}</span>
@@ -746,12 +748,12 @@ export const CheckoutPage: React.FC = () => {
             </button>
 
             {isDemoOrInvalidEmail && (
-              <p className="text-[11px] text-red-600 text-center font-bold">
+              <p className="text-[11px] text-red-600 dark:text-red-400 text-center font-bold">
                 ⚠️ Please provide a valid email above to proceed with order.
               </p>
             )}
 
-            <div className="text-center text-[10px] text-zinc-400">
+            <div className="text-center text-[10px] text-zinc-400 dark:text-zinc-500">
               By clicking "Pay", you agree to Zylo's Terms of Service & Privacy Policy.
             </div>
           </div>
